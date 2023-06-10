@@ -3,7 +3,7 @@ TRD analysis made in ROOT for beam tests and others
 
 This repository contains files for analysis of flat root file output of [JANA4ML4FPGA](https://github.com/JeffersonLab/JANA4ML4FPGA) software used in various beam tests. 
 
-# Data
+## Data
 
 - DATA /home/hdtrdops/DATA
 - LOG /gluonraid3/data4/rawdata/trd/LOG
@@ -38,6 +38,8 @@ First, you need to create a GitHub token that will be used to authenticate your 
 
 *(this token is shown in demonstration purposes and is already delted, so nothing is exposed in this image)
 
+### Use tokens
+
 Now when you do `git push` it will ask:
 - username (use your GitHub username)
 - password (use your TOKEN here as if it is a password)
@@ -48,6 +50,8 @@ Example:
 Username for 'https://github.com': DarTeots
 Password for 'https://DarTeots@github.com':
 ```
+
+### More info
 
 Now Small FAQ:
 
