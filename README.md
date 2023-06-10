@@ -24,11 +24,33 @@ First, you need to create a GitHub token that will be used to authenticate your 
     - Click on your profile picture in the top right corner and choose "Settings".
     - In the left sidebar, click "Developer settings".
     - Click "Personal access tokens".
-- Click "Generate new token"
-   
-    
 
-Give your token a descriptive name in the "Note" field.
-Under "Select scopes", check the box next to "repo" to give the token full control of private repositories.
-Click "Generate token".
-Copy the token to your clipboard. For security reasons, after you navigate off the page, you will not be able to see the token again.
+- Click "Generate new token"
+
+   ![create token](https://github.com/JeffersonLab/trd_root/blob/main/doc/git_create_token.png?raw=true)
+
+- Give your token a descriptive name in the "Gluon trd_reco" field.
+- Under "Select scopes", check the box next to "repo" - "public_repo" to give the token right to push to public repos
+- Click "Generate token".
+- Copy the token to your clipboard. **SAVE IT! For security reasons, after you navigate off the page, you will not be able to see the token again. **
+
+![create token](https://github.com/JeffersonLab/trd_root/blob/main/doc/git_copy_token.png?raw=true)
+
+*(this token is shown in demonstration purposes and is already delted, so nothing is exposed in this image)
+
+Now when you do `git push` it will ask:
+- username (use your GitHub username)
+- password (use your TOKEN here as if it is a password)
+
+Example: 
+```bash
+[hdtrdops@gluon100 ~/trd_root]$ git push
+Username for 'https://github.com': DarTeots
+Password for 'https://DarTeots@github.com':
+```
+
+Now Small FAQ:
+
+- [How not to enter username - password every time?](https://git-scm.com/docs/gitcredentials)
+- [Is there a safe way?](https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage)
+- [What are scopes of auth. for Tokens?](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps)
