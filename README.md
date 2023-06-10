@@ -32,11 +32,11 @@ First, you need to create a GitHub token that will be used to authenticate your 
 - Give your token a descriptive name in the "Gluon trd_reco" field.
 - Under "Select scopes", check the box next to "repo" - "public_repo" to give the token right to push to public repos
 - Click "Generate token".
-- Copy the token to your clipboard. **SAVE IT! For security reasons, after you navigate off the page, you will not be able to see the token again. **
+- Copy the token to your clipboard. **(!)SAVE IT(!)** For security reasons, after you navigate off the page, you will not be able to see the token again.
 
 ![create token](https://github.com/JeffersonLab/trd_root/blob/main/doc/git_copy_token.png?raw=true)
 
-*(this token is shown in demonstration purposes and is already delted, so nothing is exposed in this image)
+*(this token is delted, nothing is exposed on this image)*
 
 ### Use tokens
 
