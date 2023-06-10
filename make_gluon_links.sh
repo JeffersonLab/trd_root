@@ -6,4 +6,3 @@ ln -s /home/hdtrdops/ROOT ROOT
 ln -s /home/hdtrdops/soft_ml4fpga/setup_env.csh setup_env.csh
 ln -s /home/hdtrdops/soft_ml4fpga/setup_env.sh setup_env.sh
 mkdir RootOutput
-
