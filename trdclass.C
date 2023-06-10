@@ -5,6 +5,8 @@
 #include <TCanvas.h>
 #include "PlotLib.C"
 
+#define NPRT 1000
+//#define NPRT 10
 #define USE_TRK
 
 // -- GEMTRD mapping --
@@ -187,14 +189,15 @@ void trdclass::Loop() {
   f125_el_chi2 = new  TH1F("f125_el_chi2","TRK_el_chi2",100,0.,10000.);
   f125_pi_chi2 = new  TH1F("f125_pi_chi2","TRK_pi_chi2",100,0.,10000.);
   
+  int THRESH=200;
   f125_el_evt = new TH2F("f125_el_evt","GEM-TRD track for Electrons ; Time Response (8ns) ; Channel ",100,100.5,200.5,160,40.5,200.5);
-  f125_el_evt->SetStats(0); 
+  f125_el_evt->SetStats(0);  f125_el_evt->SetMinimum(THRESH);  f125_el_evt->SetMaximum(1000.); 
   f125_pi_evt = new TH2F("f125_pi_evt","GEM-TRD track for Pions ; Time Response (8ns) ; Channel ",100,100.5,200.5,160,40.5,200.5);
-  f125_pi_evt->SetStats(0); 
+  f125_pi_evt->SetStats(0); f125_pi_evt->SetMinimum(THRESH); f125_pi_evt->SetMaximum(1000.); 
   f125_el_raw = new TH2F("f125_el_raw","GEM-TRD track for Electrons ; Time Response (8ns) ; Channel ",100,100.5,200.5,160,40.5,200.5);
-  f125_el_raw->SetStats(0);  
+  f125_el_raw->SetStats(0);  f125_el_raw->SetMinimum(THRESH);   f125_el_raw->SetMaximum(1000.); 
   f125_pi_raw = new TH2F("f125_pi_raw","GEM-TRD track for Pions ; Time Response (8ns) ; Channel ",100,100.5,200.5,160,40.5,200.5);
-  f125_pi_raw->SetStats(0);
+  f125_pi_raw->SetStats(0); f125_pi_raw->SetMinimum(THRESH); f125_pi_raw->SetMaximum(1000.); 
 
 
 
@@ -247,7 +250,7 @@ void trdclass::Loop() {
     
 
 
-    if (jentry<MAX_PRINT || !(jentry%1000) ) 
+    if (jentry<MAX_PRINT || !(jentry%NPRT) ) 
       printf("------- evt=%llu  f125_raw_count=%llu f125_pulse_count=%llu f250_wraw_count=%llu, srs_raw_count=%llu \n"
 	     ,jentry,f125_wraw_count, f125_pulse_count, f250_wraw_count,srs_raw_count);
     
@@ -360,7 +363,7 @@ void trdclass::Loop() {
     //==================================================================================================
     //                    Process Fa125  Pulse  data
     //==================================================================================================
-    if (!(jentry%1000)) {  if(electron) { f125_el_evt->Reset(); f125_el_raw->Reset();}  else { f125_pi_evt->Reset();f125_pi_raw->Reset();}  }
+    if (!(jentry%NPRT)) {  if(electron) { f125_el_evt->Reset(); f125_el_raw->Reset();}  else { f125_pi_evt->Reset();f125_pi_raw->Reset();}  }
     if (electron) { f125_el_fit->Reset();  f125_el_amp2ds->Reset(); }
     else          { f125_pi_fit->Reset();  f125_pi_amp2ds->Reset(); }
    
@@ -400,11 +403,11 @@ void trdclass::Loop() {
 #else
         f125_el_amp2d->Fill(time,gemChan,amp);
 #endif
-	if (!(jentry%1000)) f125_el_evt->Fill(time,gemChan,amp); 
+	if (!(jentry%NPRT)) f125_el_evt->Fill(time,gemChan,amp); 
 
 	f125_el->Fill(amp);
 	f125_el_clu2d->Fill(time,gemChan,1.);
-	//if (!(jentry%1000)) f125_el_evt->Fill(time,gemChan,amp);
+	//if (!(jentry%NPRT)) f125_el_evt->Fill(time,gemChan,amp);
 	if (amp>MM_THR) {
 	  mmg1_f125_el_amp2d->Fill(time,mmg1Chan,amp);
 	  mmg1_f125_el->Fill(amp);
@@ -427,10 +430,10 @@ void trdclass::Loop() {
 #else
 	f125_pi_amp2d->Fill(time,gemChan,amp);
 #endif
-	if (!(jentry%1000)) f125_pi_evt->Fill(time,gemChan,amp); 
+	if (!(jentry%NPRT)) f125_pi_evt->Fill(time,gemChan,amp); 
 	f125_pi->Fill(amp);
 	f125_pi_clu2d->Fill(time,gemChan,1.);
-	//if (!(jentry%1000)) f125_pi_evt->Fill(time,gemChan,amp);
+	//if (!(jentry%NPRT)) f125_pi_evt->Fill(time,gemChan,amp);
 	if (amp>MM_THR) {
 	  mmg1_f125_pi_amp2d->Fill(time,mmg1Chan,amp);
 	  mmg1_f125_pi_clu2d->Fill(time,mmg1Chan,1.);
@@ -505,7 +508,7 @@ void trdclass::Loop() {
 	  tmax=si;
 	}
 
-	if (!(jentry%1000)) {
+	if (!(jentry%NPRT)) {
 	  double adc_fill=adc;
 	  if (electron)  {
 	    f125_el_raw->Fill(time,gemChan,adc);
@@ -516,7 +519,7 @@ void trdclass::Loop() {
       } // --  end of samples loop
     } // -- end of fadc125 channels loop
     
-    if (!(jentry%1000)) {
+    if (!(jentry%NPRT)) {
       int nx = f125_el_raw->GetNbinsX();
       int ny = f125_el_raw->GetNbinsY();
       double pedestal=100.;
@@ -550,7 +553,7 @@ void trdclass::Loop() {
     //===                     Event Display                                            ====
     //=====================================================================================
 		
-    if (jentry<MAX_PRINT || !(jentry%1000) )  { 
+    if (jentry<MAX_PRINT || !(jentry%NPRT) )  { 
 
       
 
@@ -561,10 +564,11 @@ void trdclass::Loop() {
       printf("========================>>>  Chi2 e=%f p=%f \n",chi2e,chi2p);
       //c0->cd(3); f125_el_chi2->Draw("colz"); 
       //c0->cd(6); f125_pi_chi2->Draw("colz"); 
-      c0->cd(3); f125_el_raw->Draw("colz"); 
-      c0->cd(6); f125_pi_raw->Draw("colz");
+      c0->cd(3); f125_el_raw->Draw("colz");  f125_el_evt->Draw("same"); 
+      c0->cd(6); f125_pi_raw->Draw("colz");  f125_pi_evt->Draw("same"); 
 
-      c0->Modified();   c0->Update(); //sleep(1); 
+      c0->Modified();   c0->Update();  
+      if (NPRT<1000) sleep(1);
     }
     		
   } // -- end of event loop 
