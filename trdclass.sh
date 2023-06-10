@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source setup_env.sh
+#source setup_env.sh
 
 RUNNUM=${1-none}
 MAXEVT=${2-0}
