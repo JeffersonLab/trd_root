@@ -48,7 +48,7 @@ Example:
 ```bash
 [hdtrdops@gluon100 ~/trd_root]$ git push
 Username for 'https://github.com': DarTeots
-Password for 'https://DarTeots@github.com':
+Password for 'https://DarTeots@github.com':  # <= paste Token here
 ```
 
 ### More info
