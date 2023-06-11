@@ -1,6 +1,8 @@
 #!/bin/bash
 
+
 #source setup_env.sh
+#only root needed
 
 RUNNUM=${1-none}
 MAXEVT=${2-0}
