@@ -36,16 +36,16 @@ int GetMMG1Chan(int ch, int slot, int runNum) {
       return dchan - 360.;
     }
   } else if (runNum>3261 && runNum<3279) { // -- Map #3
-	    if (slot==7&&ch>23) {
-      return dchan - 312.;
-	    }
+		if (slot==7&&ch>23) {
+      	return dchan - 312.;
+	   }
 		if (slot==8 || (slot==9&&ch<48)) {
 			return dchan - 240.;
-    }
+    	}
   } else if (runNum>3278) { // -- Map #4
-    if (slot==8 || (slot==7&&ch>23) || (slot==9&&ch<48)) {
-	        return dchan - 264.;
-    }
+  		if (slot==8 || (slot==7&&ch>23) || (slot==9&&ch<48)) {
+	   	return dchan - 264.;
+    	}
   }
   return -1;
 }
@@ -101,7 +101,7 @@ int GetRWELLChan(int ch, int slot, int runNum) {
     }
   } else if (runNum>3147 && runNum<3262) { // -- Map #2
     if (slot==7 || (slot==6&&ch>23)) {
-      return dchan - 240.;
+    	return dchan - 240.;
     }
   }
   return -1;
