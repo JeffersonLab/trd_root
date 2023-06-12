@@ -36,12 +36,15 @@ int GetMMG1Chan(int ch, int slot, int runNum) {
       return dchan - 360.;
     }
   } else if (runNum>3261 && runNum<3279) { // -- Map #3
-    if (slot==8 || (slot==7&&ch>23) || (slot==9&&ch<48)) {
+	    if (slot==7&&ch>23) {
       return dchan - 312.;
+	    }
+		if (slot==8 || (slot==9&&ch<48)) {
+			return dchan - 240.;
     }
   } else if (runNum>3278) { // -- Map #4
     if (slot==8 || (slot==7&&ch>23) || (slot==9&&ch<48)) {
-      return dchan - 312.;
+	        return dchan - 264.;
     }
   }
   return -1;
@@ -56,26 +59,26 @@ int GetMMG2Chan(int ch, int slot, int runNum) {
 	
   if (runNum>3261 && runNum<3279) { // -- Map #3
     if (slot==6&&ch>23&&ch<48) {
-      return dchan - 192.;
+	        return dchan - 144.;
     }
     if (slot==6&&ch>47) {
-      return dchan - 240.;
+	        return dchan - 192.;
     }
     if (slot==7&&ch<24) {
-      return dchan - 288.;
+	        return dchan - 240.;
     }
   } else if (runNum>3278) { // -- Map #4
     //if ((slot==6&&ch>23) || (slot==7&&ch<24)) {
     //return dchan - 240.; //Needs end cards swapped !!
     //}
     if (slot==6&&ch>23&&ch<48) {
-      return dchan - 192.;
+	        return dchan - 144.;
     }
     if (slot==6&&ch>47) {
-      return dchan - 240.;
+	        return dchan - 192.;
     }
     if (slot==7&&ch<24) {
-      return dchan - 288.;
+	        return dchan - 240.;
     }
   }
   return -1;
@@ -397,6 +400,7 @@ void trdclass::Loop() {
       if (amp<0) amp=0;
       int MM_THR=50;
       if(electron) { //-- this is electron --
+	if (gemChan>0) {
 #ifdef USE_TRK
         f125_el_amp2ds->Fill(time,gemChan,amp);  
 	f125_el_fit->Fill(time,gemChan,amp); 
@@ -408,22 +412,24 @@ void trdclass::Loop() {
 	f125_el->Fill(amp);
 	f125_el_clu2d->Fill(time,gemChan,1.);
 	//if (!(jentry%NPRT)) f125_el_evt->Fill(time,gemChan,amp);
-	if (amp>MM_THR) {
+	}
+	        if (amp>MM_THR && mmg1Chan>0) {
 	  mmg1_f125_el_amp2d->Fill(time,mmg1Chan,amp);
 	  mmg1_f125_el->Fill(amp);
 	  mmg1_f125_el_clu2d->Fill(time,mmg1Chan,1.);
-	  if (RunNum>3261) {
+	        }
+	        if (mmg2Chan>0) {
 	    mmg2_f125_el_amp2d->Fill(time,mmg2Chan,amp);
 	    mmg2_f125_el->Fill(amp);
 	    mmg2_f125_el_clu2d->Fill(time,mmg2Chan,1.);
 	  }
-	}
-	if (RunNum<3263) {
+	        if (rwellChan>0) {
 	  urw_f125_el_amp2d->Fill(time,rwellChan,amp);
 	  urw_f125_el->Fill(amp);
 	  urw_f125_el_clu2d->Fill(time,rwellChan,1.);
 	} 
       } else {  //-- this is hadron --
+if (gemChan>0) {
 #ifdef USE_TRK
         f125_pi_amp2ds->Fill(time,gemChan,amp);  
 	f125_pi_fit->Fill(time,gemChan,amp); 
@@ -434,17 +440,18 @@ void trdclass::Loop() {
 	f125_pi->Fill(amp);
 	f125_pi_clu2d->Fill(time,gemChan,1.);
 	//if (!(jentry%NPRT)) f125_pi_evt->Fill(time,gemChan,amp);
-	if (amp>MM_THR) {
+}
+	        if (amp>MM_THR && mmg1Chan>0) {
 	  mmg1_f125_pi_amp2d->Fill(time,mmg1Chan,amp);
 	  mmg1_f125_pi_clu2d->Fill(time,mmg1Chan,1.);
 	  mmg1_f125_pi->Fill(amp);
-	  if (RunNum>3261) {
+	        }
+	        if (mmg2Chan>0) {
 	    mmg2_f125_pi_amp2d->Fill(time,mmg2Chan,amp);
 	    mmg2_f125_pi->Fill(amp);
 	    mmg2_f125_pi_clu2d->Fill(time,mmg2Chan,1.);
 	  }
-	}
-	if (RunNum<3263) {
+	        if (rwellChan>0) {
 	  urw_f125_pi_amp2d->Fill(time,rwellChan,amp);
 	  urw_f125_pi_clu2d->Fill(time,rwellChan,1.);
 	  urw_f125_pi->Fill(amp);
@@ -685,13 +692,12 @@ void trdclass::Loop() {
   nxd=2; nyd=5;
   cc=NextPlot(nxd,nyd);   f125_el->Draw();
   cc=NextPlot(nxd,nyd);   f125_pi->Draw();
-  //cc=NextPlot(nxd,nyd);   mmg_f125_el->Draw();
-  //cc=NextPlot(nxd,nyd);   mmg_f125_pi->Draw();
-
+  cc=NextPlot(nxd,nyd);   mmg1_f125_el->Draw();
+  cc=NextPlot(nxd,nyd);   mmg1_f125_pi->Draw();
   cc=NextPlot(nxd,nyd);   f125_el_amp2d->Draw("colz");
   cc=NextPlot(nxd,nyd);   f125_pi_amp2d->Draw("colz");
-  //cc=NextPlot(nxd,nyd);   mmg_f125_el_amp2d->Draw("colz");
-  //cc=NextPlot(nxd,nyd);   mmg_f125_pi_amp2d->Draw("colz");
+  cc=NextPlot(nxd,nyd);   mmg1_f125_el_amp2d->Draw("colz");
+  cc=NextPlot(nxd,nyd);   mmg1_f125_pi_amp2d->Draw("colz");
   cc=NextPlot(nxd,nyd);   urw_f125_el_amp2d->Draw("colz");
   cc=NextPlot(nxd,nyd);   urw_f125_pi_amp2d->Draw("colz");
 
@@ -700,8 +706,8 @@ void trdclass::Loop() {
 
   cc=NextPlot(nxd,nyd);   f125_el_clu2d->Draw("colz");
   cc=NextPlot(nxd,nyd);   f125_pi_clu2d->Draw("colz");
-  //cc=NextPlot(nxd,nyd);   mmg_f125_el_clu2d->Draw("colz");
-  //cc=NextPlot(nxd,nyd);   mmg_f125_pi_clu2d->Draw("colz");
+  cc=NextPlot(nxd,nyd);   mmg1_f125_el_clu2d->Draw("colz");
+  cc=NextPlot(nxd,nyd);   mmg1_f125_pi_clu2d->Draw("colz");
   cc=NextPlot(nxd,nyd);   urw_f125_el_clu2d->Draw("colz");
   cc=NextPlot(nxd,nyd);   urw_f125_pi_clu2d->Draw("colz");
 

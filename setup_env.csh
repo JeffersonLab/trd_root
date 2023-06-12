@@ -1,0 +1,1 @@
+/home/hdtrdops/soft_ml4fpga/setup_env.csh
