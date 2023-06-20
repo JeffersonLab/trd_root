@@ -287,6 +287,7 @@ public :
    #define  NCAL 7
    TH1F *hCal_adc[7];  //---  FADC250 channles 0 - 8
    TH2F *hCal_cor[7];      //---  FADC250 channles 0 - 8
+   TH2F *hCal_trk[7];      //---  FADC250 channles 0 - 8
    TH2F *hCal_cal[7];      //---  FADC250 channles 0 - 8
    TH1F *hCal_time[7];  //---  FADC250 channles 0 - 8
    const int NCHER=3;
@@ -301,6 +302,8 @@ public :
    TH2F *hCCor_ud;
    TH2F *hCCCor_u;
    TH2F *hCCCor_dout;
+
+   TH2F *srs_trk_el, *srs_trk_pi, *srs_gem_x, *srs_gem_y, *srs_cal_corr;
 
    TH1F *f125_el, *f125_el_chi2;
    TH1F *f125_pi, *f125_pi_chi2;

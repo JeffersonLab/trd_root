@@ -46,7 +46,7 @@ TCanvas *NextPlot(int nx, int ny) {
   static char Cname[128], PSname[128];   
   memset(Cname,0,sizeof(Cname)); 
   
-  printf("next0: Plot=%d, pad=%d  ican=%d\n",iplot,ipad,ican);
+  //printf("next0: Plot=%d, pad=%d  ican=%d\n",iplot,ipad,ican);
 
   int run1=G_RUN1;
   int run2=G_RUN2;
@@ -139,7 +139,7 @@ TCanvas *NextPlot(int nx, int ny) {
   //gPad->SetFillColor(0);
   //gStyle->SetFillColor(0);
 
-  printf("next: Plot=%d, pad=%d  ican=%d\n",iplot,ipad,ican);
+  //printf("next: Plot=%d, pad=%d  ican=%d\n",iplot,ipad,ican);
   ipad++; iplot++;   
   return c1;
 }
