@@ -152,7 +152,16 @@ void trdclass::Loop() {
   TF1 ftrk("ftrk","[0]*x+[1]",-55.,55.);
   ftrk.SetParameter(0,aa);
   ftrk.SetParameter(1,bb);
-  //-------------------------------------
+  TF1 ftrkr("ftrk","(x-[1])/[0]",0.,255.);
+  ftrkr.SetParameter(0,aa);
+  ftrkr.SetParameter(1,bb);
+
+  //----------------  GEM TRK fuducial area selection (box cut) ----------------------
+  double xbc1=-50., xbc2=+50., ybc1=-50., ybc2=+50.; 
+  double gemtrk_x2ch=-999.;
+
+  //----------------------------------------------------------------------------------
+
 
   hCal_occ = new TH1F("hCal_occ"," Calorimeter Occupancy",9,-0.5,8.5);         HistList->Add(hCal_occ);
   hCal_sum = new TH1F("hCal_sum"," Calorimeter Sum (GeV)",100.,0.,15.);        HistList->Add(hCal_sum);
@@ -573,7 +582,20 @@ void trdclass::Loop() {
       f125_pi_fit->Reset();
       f125_pi_amp2ds->Reset();
     }
-	
+
+    //==================================================================================================
+    //                    SRS GemTRK 
+    //==================================================================================================
+
+    double gemtrk_x=-999.,  gemtrk_y=-999.,  gemtrk_E=0,  delta_x=1000.,  dx_thresh=5.;
+    if (gem_scluster_count==1) {                         //--- use (first or single ?? ----
+      for (ULong64_t ic=0; ic<gem_scluster_count; ic++) {   // --- SRS cluster loop, actually only 0 ;
+	double x=gem_scluster_x->at(ic); if (x<=0) gemtrk_x=x+50.; else gemtrk_x=x-50.;  gemtrk_x*=-1.;
+	double y=gem_scluster_y->at(ic); if (y<=0) gemtrk_y=y+50.; else gemtrk_y=y-50.;  gemtrk_y*=-1.;
+	gemtrk_E=gem_scluster_energy->at(ic);
+      }
+    }
+
     //==================================================================================================
     //                    Single Track Event Fitting
     //==================================================================================================
@@ -584,14 +606,14 @@ void trdclass::Loop() {
     float f125_amp_max=0.;
     //float mmg_f125_amp_max=0.;
     //float urw_f125_amp_max=0.;
-	
+
     for (ULong64_t i=0;i<f125_pulse_count; i++) {
+
       if (jentry<MAX_PRINT) printf("F125:: i=%lld  sl=%d, ch=%d, npk=%d time=%d amp=%d ped=%d \n"
 				   ,i,f125_pulse_slot->at(i),f125_pulse_channel->at(i),f125_pulse_npk->at(i)
 				   ,f125_pulse_peak_time->at(i),f125_pulse_peak_amp->at(i),f125_pulse_pedestal->at(i));
       //cout<<" ++++++++++++++++++++ f125_pulse_npk= "<<f125_pulse_npk->at(i)<<endl;
 	
-		
       //------ TRACK FITTING FILL ------
       float peak_amp = f125_pulse_peak_amp->at(i);
       float ped = f125_pulse_pedestal->at(i);
@@ -608,8 +630,12 @@ void trdclass::Loop() {
       if (amp<0) amp=0;
       int MM_THR=50;
 
+      // ------- TR Radiator search -----
+      if (electron_ch && gemChan>-1 && amp > 400 && time > 150. ) {  srs_etrd_corr->Fill(gemtrk_x,gemtrk_y,amp);    }		
+
       if(electron) {  //-----------------  electron ---------------
 	if (gemChan>-1) {
+	  if (!(jentry%NPRT)) { f125_el_evt->Fill(time,gemChan,amp);     gemtrk_x2ch=(ftrk(gemtrk_x)+50.)/0.4; }
 #ifdef USE_TRK
 	  f125_el_amp2ds->Fill(time,gemChan,amp);
 	  f125_el_fit->Fill(time,gemChan,amp);
@@ -619,6 +645,7 @@ void trdclass::Loop() {
 	}
       } else if (pion) {   //--------------- hadron / pion ---------------
 	if (gemChan>-1) {
+	  if (!(jentry%NPRT)) f125_pi_evt->Fill(time,gemChan,amp);
 #ifdef USE_TRK
 	  f125_pi_amp2ds->Fill(time,gemChan,amp);
 	  f125_pi_fit->Fill(time,gemChan,amp);
@@ -627,12 +654,12 @@ void trdclass::Loop() {
 #endif
 	}
       }
-    } //-- End f125 pulse loop --
+    } //-------------------------------- End f125 pulse loop -----------------------------
 
     double x0=0;
     double chi2_max=20000;
 #ifdef USE_TRK
-    //--- Calorimeter Correlation ---
+    //--------------------- Calorimeter Correlation with GemTrk and GemTrd ----------------
     double chi2cc = TrkFit(f125_el_fit,fx,"fx");
     double a = fx.GetParameter(1);
     double b = fx.GetParameter(0);
@@ -686,20 +713,19 @@ void trdclass::Loop() {
     }
 #endif
 
-      //--- use GemTrk track (first or single ?? ----
 
-    double gemtrk_x=-999.,  gemtrk_y=-999.,  gemtrk_E=0,  delta_x=1000.,  dx_thresh=5.;
-    if (gem_scluster_count==1) {
-      for (ULong64_t ic=0; ic<gem_scluster_count; ic++) {   // --- SRS cluster loop, actually only 0 ;
-	double x=gem_scluster_x->at(ic); if (x<=0) gemtrk_x=x+50.; else gemtrk_x=x-50.;  gemtrk_x*=-1.;
-	double y=gem_scluster_y->at(ic); if (y<=0) gemtrk_y=y+50.; else gemtrk_y=y-50.;  gemtrk_y*=-1.;
-	gemtrk_E=gem_scluster_energy->at(ic);
-      }
-      delta_x=abs(ftrk.Eval(gemtrk_x)-x0);
-    }
-    
+    //----------------  GEM TRK fuducial area selection (box cut) ----------------------
+    delta_x=abs(ftrk.Eval(gemtrk_x)-x0); 
+    if  (3201 <= RunNum && RunNum <= 3203) {   //---  applied runs --
+      xbc1=0., xbc2=+20., ybc1=-20., ybc2=+10.;
+      if ( gem_scluster_count!=1  ||  delta_x>dx_thresh || xbc1>gemtrk_x || gemtrk_x>xbc2 || ybc1 > gemtrk_y || gemtrk_y > ybc2)  isSingleTrack=false;
+      isSingleTrack=true;
+    }   
+
     //----- Single Track Event Histogram Filling -----
-    if (isSingleTrack && gem_scluster_count==1 && delta_x<dx_thresh && 0.<gemtrk_x && gemtrk_x<20. && -20.<gemtrk_y && gemtrk_y <10.) { //--- single TRD track and single SRS hit --
+
+    if (isSingleTrack) {                                        //--- single TRD track and single SRS hit --
+
       Count("1_TRK");
 
       for (ULong64_t i=0;i<f125_pulse_count; i++) {
@@ -731,13 +757,8 @@ void trdclass::Loop() {
 	    f125_el_amp2d->Fill(time,gemChan,amp);
 #endif
 	    */
-	    //------------ SRS - TRD clust correlation ---------------------
-	    if (gem_scluster_count==1 && amp > 500 && time > 150. ) { //--- TR Radiator search
-	      srs_etrd_corr->Fill(gemtrk_x,gemtrk_y,amp);
-	    }
-	    //--------------------------------------------------------------		
 
-	    if (!(jentry%NPRT)) f125_el_evt->Fill(time,gemChan,amp);
+	    //--------------------------------------------------------------		
 
 	    f125_el->Fill(amp);
 	    f125_el_clu2d->Fill(time,gemChan,1.);
@@ -797,7 +818,6 @@ void trdclass::Loop() {
 	    f125_pi_amp2d->Fill(time,gemChan,amp);
 #endif
 	    */
-	    if (!(jentry%NPRT)) f125_pi_evt->Fill(time,gemChan,amp);
 	    f125_pi->Fill(amp);
 	    f125_pi_clu2d->Fill(time,gemChan,1.);
 	            	
@@ -950,11 +970,21 @@ void trdclass::Loop() {
       //c0->cd(3); f125_el_chi2->Draw("colz");
       //c0->cd(6); f125_pi_chi2->Draw("colz");
       c0->cd(3); f125_el_raw->Draw("colz");  f125_el_evt->Draw("same"); 
+  
+      TLine lin1(110.,gemtrk_x2ch,190.,gemtrk_x2ch); lin1.SetLineColor(kRed); lin1.Draw("same");   //--- draw  gemtrk x 
+      printf("++++++++++++ Draw GEMTRK:: %f %f %f  \n",gemtrk_x,ftrk(gemtrk_x),gemtrk_x2ch);
+
       c0->cd(6); f125_pi_raw->Draw("colz");  f125_pi_evt->Draw("same"); 
       c0->cd(7); srs_trk_el->Draw("colz"); 
       c0->cd(8); srs_gem_x->Draw("colz");  ftrk.Draw("same"); 
+      //---------- fiducial area ---
       c0->cd(9); srs_etrd_corr->Draw("colz");
-		
+      TBox fbox(xbc1,ybc1,xbc2,ybc2);  //---- draw box cut ---
+      fbox.Draw();
+      fbox.SetLineColor(kRed);
+      fbox.SetFillStyle(0);
+      fbox.SetLineWidth(2);
+      //---------
       c0->Modified();   c0->Update();
       if (NPRT<1000) sleep(1);
     }
@@ -968,7 +998,7 @@ void trdclass::Loop() {
     if (mmg2_nhit>0)EVENT_VECT_MMG2->Fill();
     if (urw_nhit>0)EVENT_VECT_URW->Fill();
     
-  } // -- end of event loop
+  } // ------------------------ end of event loop  ------------------------------
    
   cout<<" Total events= "<<jentry<< "  N_trk_el=" << N_trk_el++ << " N_trk_pi=" << N_trk_pi <<endl;
    
@@ -1075,8 +1105,13 @@ void trdclass::Loop() {
   cc=NextPlot(nxd,nyd);  srs_cal_corr->Draw("colz");
   cc=NextPlot(nxd,nyd);  srs_gem_x->Draw("colz");  ftrk.Draw("same"); 
   cc=NextPlot(nxd,nyd);  srs_gem_y->Draw("colz");
-  cc=NextPlot(nxd,nyd);  srs_etrd_corr->Draw("colz");
-
+  cc=NextPlot(nxd,nyd);  srs_etrd_corr->Draw("colz");  
+  TBox fbox(xbc1,ybc1,xbc2,ybc2);  //---- draw box cut ---
+  fbox.Draw("same");
+  //fbox.SetFillColorAlpha(0,0);
+  fbox.SetLineColor(kRed);
+  fbox.SetFillStyle(0);
+  fbox.SetLineWidth(1);
 
  //---------------------  page 3 --------------------
   htitle("  GEMTRD (fa125) Amp ");    if (!COMPACT) cc=NextPlot(0,0);
