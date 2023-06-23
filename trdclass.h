@@ -302,8 +302,8 @@ public :
    TH2F *hCCor_ud;
    TH2F *hCCCor_u;
    TH2F *hCCCor_dout;
-
-   TH2F *srs_trk_el, *srs_trk_pi, *srs_gem_x, *srs_gem_y, *srs_cal_corr;
+   TH1F *srs_ncl;
+   TH2F *srs_trk_el, *srs_trk_pi, *srs_gem_x, *srs_gem_y, *srs_cal_corr, *srs_etrd_corr;
 
    TH1F *f125_el, *f125_el_chi2;
    TH1F *f125_pi, *f125_pi_chi2;
