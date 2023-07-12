@@ -269,7 +269,7 @@ public :
    virtual void     Loop();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
-   double   TrkFit(TH2F *h2, TF1 &fx, const char *cfx);
+   double   TrkFit(TH2F *h2, TF1 &fx, const char *cfx, int rob);
    void Count(const char *tit);
    void Count(const char *tit, double cut1);
    void Count(const char *tit, double cut1, double cut2);
@@ -291,6 +291,7 @@ public :
    TH2F *hCal_trk[7];      //---  FADC250 channles 0 - 8
    TH2F *hCal_cal[7];      //---  FADC250 channles 0 - 8
    TH1F *hCal_time[7];  //---  FADC250 channles 0 - 8
+   TH2F *cal_el_evt, *cal_pi_evt; 
    const int NCHER=3;
    //TH1F *hCher_adc[3]; //-- FADC250 channels 13,14,15
    TH1F *hCher_u_adc;
@@ -304,10 +305,10 @@ public :
    TH2F *hCCCor_u;
    TH2F *hCCCor_dout;
    TH1F *srs_ncl;
-   TH2F *srs_trk_el, *srs_trk_pi, *srs_gem_x, *srs_gem_y, *srs_cal_corr, *srs_etrd_corr;
+   TH2F *srs_trk_el, *srs_trk_pi, *srs_gem_dx, *srs_gem_x, *srs_gem_y, *srs_cal_corr, *srs_etrd_corr, *srs_etrd_beam, *srs_etrd_pion, *srs_etrd_ratio;
 
-   TH1F *f125_el, *f125_el_chi2;
-   TH1F *f125_pi, *f125_pi_chi2;
+   TH1F *f125_el, *f125_el_chi2, *f125_el_fita;
+   TH1F *f125_pi, *f125_pi_chi2, *f125_pi_fita;
    TH2F *f125_el_amp2d, *f125_el_amp2ds, *f125_el_evt, *f125_el_raw, *f125_el_fit;
    TH2F *f125_pi_amp2d, *f125_pi_amp2ds, *f125_pi_evt, *f125_pi_raw, *f125_pi_fit;
    TH2F *f125_el_clu2d;
@@ -671,7 +672,7 @@ Int_t trdclass::Cut(Long64_t entry)
    return 1;
 }
 
-double trdclass::TrkFit(TH2F *h2_evt, TF1 &fx, const char *cfx )
+double trdclass::TrkFit(TH2F *h2_evt, TF1 &fx, const char *cfx, int rob )
 {
   //----------  SF fit ---------------------------
   /*
@@ -688,11 +689,15 @@ double trdclass::TrkFit(TH2F *h2_evt, TF1 &fx, const char *cfx )
   // TF1 fx("fx","pol1",100,190);
  
   TCutG *cutgx = new TCutG("cutgx",5);
-  cutgx->SetPoint(0,  100,40);      cutgx->SetPoint(1, 190,40);      cutgx->SetPoint(2, 190, 200);      cutgx->SetPoint(3,  100, 200);      cutgx->SetPoint(4,  100,40);
+  cutgx->SetPoint(0,  100,20);      cutgx->SetPoint(1, 190,20);      cutgx->SetPoint(2, 190, 220);      cutgx->SetPoint(3,  100, 220);      cutgx->SetPoint(4,  100,20);
 
   TProfile *profx = h2_evt->ProfileX("profx", 5, 500,"[cutgx]");
   //profx->Fit("fx","QNR");
-  profx->Fit(cfx,"QNR");
+  if (rob>0) {
+    profx->Fit(cfx,"QNR+rob=0.75"); //  "+rob=0.75"
+  } else {
+    profx->Fit(cfx,"QNR"); // 
+  }
   Double_t chi2x = fx.GetChisquare();
   Double_t Ndfx = fx.GetNDF();
   Double_t p0x = fx.GetParameter(0);
