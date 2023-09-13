@@ -34,6 +34,7 @@
 #include "TLine.h"
 #include "TLinearFitter.h"
 #include "TGraphErrors.h"
+#include <TError.h>
 #include "TF1.h"
 #include "TPaveStats.h"
 #include "TCutG.h"
@@ -687,6 +688,9 @@ double trdclass::TrkFit(TH2F *h2_evt, TF1 &fx, const char *cfx, int rob )
   */
 
   // TF1 fx("fx","pol1",100,190);
+  
+  
+  gErrorIgnoreLevel = kError; // Suppress warning messages from empty fit data
  
   TCutG *cutgx = new TCutG("cutgx",5);
   cutgx->SetPoint(0,  100,20);      cutgx->SetPoint(1, 190,20);      cutgx->SetPoint(2, 190, 220);      cutgx->SetPoint(3,  100, 220);      cutgx->SetPoint(4,  100,20);
