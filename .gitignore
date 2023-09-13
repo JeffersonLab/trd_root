@@ -5,6 +5,8 @@
 *.pcm
 *.sh
 *.csh
+*.d
+*.cxx
 DATA
 ROOT
 LOG
