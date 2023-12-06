@@ -285,14 +285,13 @@ public :
    TH1F *hCal_sum;
    TH1F *hCal_sum_el;
    TH1F *hCal_sum_pi;
-   //const int NCAL=7;
    #define  NCAL 7
    TH1F *hCal_adc[7];  //---  FADC250 channles 0 - 8
    TH2F *hCal_cor[7];      //---  FADC250 channles 0 - 8
    TH2F *hCal_trk[7];      //---  FADC250 channles 0 - 8
    TH2F *hCal_cal[7];      //---  FADC250 channles 0 - 8
    TH1F *hCal_time[7];  //---  FADC250 channles 0 - 8
-   TH2F *cal_el_evt, *cal_pi_evt; 
+   TH2F *cal_el_evt, *cal_pi_evt;
    const int NCHER=3;
    //TH1F *hCher_adc[3]; //-- FADC250 channels 13,14,15
    TH1F *hCher_u_adc;
@@ -305,13 +304,17 @@ public :
    TH2F *hCCor_ud;
    TH2F *hCCCor_u;
    TH2F *hCCCor_dout;
-   TH1F *srs_ncl;
-   TH2F *srs_trk_el, *srs_trk_pi, *srs_gem_dx, *srs_gem_x, *srs_gem_y, *srs_cal_corr, *srs_etrd_corr, *srs_etrd_beam, *srs_etrd_pion, *srs_etrd_ratio;
+   TH1F *srs_num_clusters;
+   TH1F *hgemtrkr_x;
+   TH1F *hgemtrkr_y;
+   TH1F *hgemtrkr_peak_x;
+   TH1F *hgemtrkr_peak_y;
+   TH2F *srs_trk_el, *srs_trk_pi, *srs_gem_dx, *srs_gem_dy, *srs_gem_x, *srs_gem_y, *srs_cal_corr, *srs_gemtrd_el, *srs_etrd_beam, *srs_gemtrd_pion, *srs_etrd_ratio, *srs_mmg1_dx, *srs_mmg1_dy, *srs_mmg1_x, *srs_mmg1_y, *srs_urw_dx, *srs_urw_dy, *srs_urw_x, *srs_urw_y, *srs_mmg2_dx, *srs_mmg2_dy, *srs_mmg2_x, *srs_mmg2_y;
 
-   TH1F *f125_el, *f125_el_chi2, *f125_el_fita;
-   TH1F *f125_pi, *f125_pi_chi2, *f125_pi_fita;
-   TH2F *f125_el_amp2d, *f125_el_amp2ds, *f125_el_evt, *f125_el_raw, *f125_el_fit;
-   TH2F *f125_pi_amp2d, *f125_pi_amp2ds, *f125_pi_evt, *f125_pi_raw, *f125_pi_fit;
+   TH1F *f125_el, *f125_el_chi2, *f125_el_fita, *mmg1_f125_el_chi2, *mmg1_f125_el_fita, *urw_f125_el_chi2, *urw_f125_el_fita, *mmg2_f125_el_chi2, *mmg2_f125_el_fita;
+   TH1F *f125_pi, *f125_pi_chi2, *f125_pi_fita, *mmg1_f125_pi_chi2, *mmg1_f125_pi_fita, *urw_f125_pi_chi2, *urw_f125_pi_fita, *mmg2_f125_pi_chi2, *mmg2_f125_pi_fita;
+   TH2F *f125_el_amp2d, *f125_el_amp2ds, *f125_el_evt_display, *f125_el_raw, *f125_el_fit, *f125_fit, *mmg1_f125_el_fit, *mmg1_f125_fit, *urw_f125_el_fit, *urw_f125_fit, *mmg2_f125_el_fit, *mmg2_f125_fit, *mmg1_f125_el_amp2ds, *urw_f125_el_amp2ds, *mmg2_f125_el_amp2ds;
+   TH2F *f125_pi_amp2d, *f125_pi_amp2ds, *f125_pi_evt_display, *f125_pi_raw, *f125_pi_fit, *mmg1_f125_pi_fit, *urw_f125_pi_fit, *mmg2_f125_pi_fit, *mmg1_f125_pi_amp2ds, *urw_f125_pi_amp2ds, *mmg2_f125_pi_amp2ds;
    TH2F *f125_el_clu2d;
    TH2F *f125_pi_clu2d;
 
@@ -335,6 +338,15 @@ public :
    TH2F *urw_f125_pi_amp2d;
    TH2F *urw_f125_el_clu2d;
    TH2F *urw_f125_pi_clu2d;
+   
+   TH2F *ch_gem_mmg1;
+   TH2F *ch_gem_urw;
+   TH2F *ch_gem_mmg2;
+   TH2F *ch_mmg1_urw;
+   
+   TH2F *gem_mmg1_x;
+   TH2F *gem_urw_x;
+   TH2F *gem_mmg2_x;
    
    //----- EVENT STRUCTURE -----
    TTree *EVENT_VECT_GEM;
@@ -382,8 +394,6 @@ public :
    std::vector <bool> urw_parID;
    std::vector <float> urw_zHist_vect;
    TH1F *urw_zHist;
-   //---------------------------
-
    //=============================================
 };
 
@@ -686,49 +696,34 @@ double trdclass::TrkFit(TH2F *h2_evt, TF1 &fx, const char *cfx, int rob )
     Float_t y = h3->GetBinContent(bin);
     virtual Double_t TH2::GetBinContent     (       Int_t   binx,           Int_t   biny    )
   */
-
-  // TF1 fx("fx","pol1",100,190);
+  gErrorIgnoreLevel = kBreak; // Suppress warning messages from empty fit data
   
-  
-  gErrorIgnoreLevel = kError; // Suppress warning messages from empty fit data
- 
   TCutG *cutgx = new TCutG("cutgx",5);
-  cutgx->SetPoint(0,  100,20);      cutgx->SetPoint(1, 190,20);      cutgx->SetPoint(2, 190, 220);      cutgx->SetPoint(3,  100, 220);      cutgx->SetPoint(4,  100,20);
-
-  TProfile *profx = h2_evt->ProfileX("profx", 5, 500,"[cutgx]");
-  //profx->Fit("fx","QNR");
+  cutgx->SetPoint(0,100,20);
+  cutgx->SetPoint(1,190,20);
+  cutgx->SetPoint(2,190,220);
+  cutgx->SetPoint(3,100,220);
+  cutgx->SetPoint(4,100,20);
+  
+  TProfile *profx = h2_evt->ProfileX("profx", 5, 500, "[cutgx]");
   if (rob>0) {
     profx->Fit(cfx,"QNR+rob=0.75"); //  "+rob=0.75"
   } else {
-    profx->Fit(cfx,"QNR"); // 
+    profx->Fit(cfx,"QNR");
   }
   Double_t chi2x = fx.GetChisquare();
   Double_t Ndfx = fx.GetNDF();
-  Double_t p0x = fx.GetParameter(0);
-  Double_t p1x = fx.GetParameter(1);
-
-  //profx->Draw();
-  //fx.DrawClone("same");
-
-  //printf("+++>   Chi2/Ndf = %f \n",chi2x/Ndfx);
-
-  //chi2xy->Fill(chi2x/Ndfx,chi2y/Ndfy);
-     
+  //Double_t p0x = fx.GetParameter(0);
+  //Double_t p1x = fx.GetParameter(1);
+/*
   int kfit = 0;
   //if (chi2x/Ndfx<100 && chi2y/Ndfy<10 && Ndfx>10 && Ndfy>10) {
-  if (chi2x/Ndfx<100  && Ndfx>10) {
+  if (chi2x/Ndfx<100 && Ndfx>10) {
     kfit=1;
-    //    hp0x->Fill(p0x);
-    //    hp1x->Fill(p1x);
-    //    sct_plot->Add(ct_plot);
-    //    scty_plot->Add(cty_plot);
   }
-
-  //printf("Ndfx = %f \n",Ndfx);
+*/
   double chi2=chi2x/Ndfx;  if (Ndfx<3) chi2=-chi2;
-
   return chi2;
-
 }
 
 
