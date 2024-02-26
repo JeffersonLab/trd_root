@@ -260,7 +260,7 @@ public :
    TBranch        *b_gem_peak_area;   //!
    TBranch        *b_gem_peak_real_pos;   //!
 
-   trdclass(int RunNum, int MaxEvt);
+   trdclass(int RunNum, int MaxEvt, int FirstEvt);
    virtual ~trdclass();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -278,6 +278,7 @@ public :
 
    int RunNum;
    Long64_t MaxEvt;
+   Long64_t FirstEvt;
    TH1F *h250_size;
    TH1D *hcount;
    TH1F *hCal_occ;
@@ -307,8 +308,8 @@ public :
    TH1F *srs_ncl;
    TH2F *srs_trk_el, *srs_trk_pi, *srs_gem_dx, *srs_gem_x, *srs_gem_y, *srs_cal_corr, *srs_etrd_corr, *srs_etrd_beam, *srs_etrd_pion, *srs_etrd_ratio;
 
-   TH1F *f125_el, *f125_el_chi2, *f125_el_fita;
-   TH1F *f125_pi, *f125_pi_chi2, *f125_pi_fita;
+   TH1F *f125_el, *f125_el_max, *f125_el_chi2, *f125_el_fita;
+   TH1F *f125_pi, *f125_pi_max, *f125_pi_chi2, *f125_pi_fita;
    TH2F *f125_el_amp2d, *f125_el_amp2ds, *f125_el_evt, *f125_el_raw, *f125_el_fit;
    TH2F *f125_pi_amp2d, *f125_pi_amp2ds, *f125_pi_evt, *f125_pi_raw, *f125_pi_fit;
    TH2F *f125_el_clu2d;
@@ -335,6 +336,7 @@ public :
    TH2F *urw_f125_el_clu2d;
    TH2F *urw_f125_pi_clu2d;
    
+   TH2F *hevt, *hevtc, *hevti, *hevtf;
    //----- EVENT STRUCTURE -----
    TTree *EVENT_VECT_GEM;
    TTree *EVENT_VECT_MMG1;
@@ -389,10 +391,11 @@ public :
 #endif
 
 #ifdef trdclass_cxx
-trdclass::trdclass(int RunNum_in, int MaxEvt_in=0 ) : fChain(0)
+trdclass::trdclass(int RunNum_in, int MaxEvt_in=0,  int FirstEvt_in=0) : fChain(0)
 {
   RunNum=RunNum_in;
   MaxEvt=MaxEvt_in;
+  FirstEvt=FirstEvt_in;
   TTree *tree=NULL;
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
