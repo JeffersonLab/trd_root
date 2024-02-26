@@ -1372,7 +1372,13 @@ mg->Draw("a");
       */
       //float TRACKS_fit[N_NODES_MAX][LSTM_FEA+1];
 
-      TMultiGraph *mg = new TMultiGraph();
+
+
+      static TMultiGraph *mg;
+      if (mg != NULL ) delete mg;
+      //printf("!!!!!!!!!!!>>>>>>  mg pointer1 = %p ",mg);
+      mg = new TMultiGraph();
+      //printf(">>>>>>  pointer2 = %p \n ",mg);
 
       int NTRACKS=0;
       for (int i2 = 1; i2 < nhits; i2++) {  // tracks loop; zero track -> noise
@@ -1405,14 +1411,18 @@ mg->Draw("a");
 	g->Fit(f); 
 	//c2->cd(3); g->Draw("AC*"); 
 
-	mg->Add(g,"lp");
+	mg->Add(g,"p");
 
 	NTRACKS++;
 
       }  //  end tracks loop
       
       c2->cd(3); mg->Draw("APsame"); 
+      mg->GetXaxis()->SetLimits(0.,30);
+      mg->SetMinimum(-50.);
+      mg->SetMaximum(+50.);
       gPad->Modified(); gPad->Update(); 
+
 
 #endif // USE_GNN MC
 
