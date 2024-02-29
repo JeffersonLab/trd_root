@@ -1,15 +1,16 @@
 #!/bin/bash
 
 
-#source setup_env.sh
+source setup_env.sh
 # only root needed
 
 RUNNUM=${1-none}
 MAXEVT=${2-0}
+FRSTEVT=${3-0}
 
 if [[ ${RUNNUM} == "none" ]] ; then
     echo "================================="
-    echo " Usage: ./$0 <RunNum> [Max_Events] "
+    echo " Usage: ./$0 <RunNum> [Max_Events] [First_Event]"
     echo "================================="
     exit 0;
 fi
@@ -18,6 +19,6 @@ echo "====>  Process RUN=$RUNNUM <=========="
 
 root --web=off -l <<EOC
 .L trdclass.C+
-trdclass t(${RUNNUM},${MAXEVT})
+trdclass t(${RUNNUM},${MAXEVT},${FRSTEVT})
 t.Loop()
 EOC
