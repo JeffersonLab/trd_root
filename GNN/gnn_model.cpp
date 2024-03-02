@@ -15,7 +15,7 @@
 #include "weights2_iter4.h"
 
 #define USE_WEIGHTS 1
-
+//#define VERBOSE
 
 //typedef std::vector<std::vector<float>> f2vec;
 //typedef std::vector<float> f1vec;
@@ -28,6 +28,7 @@ float sigmoid(float x){
 }
 
 void printVec(f2vec vec, std::string name = ""){
+#ifdef VERBOSE
   printf("--%s (%d,%d)--\n",name.c_str(),vec.size(),vec[0].size());
   for(std::vector<float> v : vec){
     for(float f : v){
@@ -36,23 +37,28 @@ void printVec(f2vec vec, std::string name = ""){
     printf("\n");
   }
   printf("\n---\n\n");
+#endif
 }
 
 void printVec(std::vector<float> vec, std::string name = ""){
+#ifdef VERBOSE
   printf("--%s (%d,)--\n",name.c_str(),vec.size());
   int c=0;
   for(float f : vec){
     printf("%2d %7.3f\n",c,f); c++;
   }
   printf("\n---\n\n");
+#endif
 }
 
 void printVec(std::vector<int> vec, std::string name = ""){
+#ifdef VERBOSE
   printf("--%s (%d,)--\n",name.c_str(),vec.size());
   for(int f : vec){
     printf("%3d\n",f);
   }
   printf("\n---\n\n");
+#endif
 }
 
 // void readWeight(){
@@ -137,13 +143,9 @@ namespace node{
     f1vec b1 = {0.32141953, -0.14381635,  0.37161407,  0.23082987,  0.41443494,
         0.00840067, -0.00491667,  0.11339182};
   }
-
 }
 
-
-
 namespace edge{
-
   namespace encode{
     f2vec w0 = {
       { -0.651344,   0.293017,   0.073951,  -0.069459,  -0.648597,   0.118594,  -0.002665,  -0.985578}, 
@@ -164,7 +166,6 @@ namespace edge{
     f1vec b1 = {0.52754318, -0.15628274,  0.32447563, -0.05754587, -0.15938263,
           0.02293825, -0.12726679,  0.32849665};
   }
-
 
   namespace core{
     f2vec w0 = {
@@ -377,9 +378,9 @@ int gnn_model(f2vec nodes,  f2vec edges, std::vector<int> senders, std::vector<i
   //output[12] =  nl1[5][5];
   //output[13] =  el0[5][5];
   //output[14] =  el1[5][5];
-
+#ifdef VERBOSE
   std::cout << "==>>  nl0[5][5]=" <<  nl0[5][5] << " nl1[5][5]=" <<  nl1[5][5] << " el0[5][5]=" <<  el0[5][5] << " el1[5][5]=" <<  el1[5][5] << std::endl;
-
+#endif
 
   int LATENT = 8;
 
@@ -394,9 +395,9 @@ int gnn_model(f2vec nodes,  f2vec edges, std::vector<int> senders, std::vector<i
 
     f2vec nInput = nTmp;
     f2vec eInput = eTmp;
-
+#ifdef VERBOSE
     printf("model iter=%d nodes.size()=%d edges.size()=%d\n",iter,nodes.size(),edges.size());
-
+#endif
     //output[17] =  nInput[5][5];
     //output[18] =  eInput[5][5];
 
@@ -466,9 +467,9 @@ int gnn_model(f2vec nodes,  f2vec edges, std::vector<int> senders, std::vector<i
       //output[28] = in[5];
 
       f2vec in2 = {in};
-      
+#ifdef VERBOSE
       printf("in2: n=%d  ",n); for(int jj=0; jj<16; jj++){ printf("%6.2f ",in2[0][jj]); } printf("\n");
-
+#endif
 
 #if (USE_WEIGHTS == 0)
       f2vec nc0 = dot_bias_max(in2,node::core::w0, node::core::b0);
@@ -476,12 +477,13 @@ int gnn_model(f2vec nodes,  f2vec edges, std::vector<int> senders, std::vector<i
       f2vec nc0 = dot_bias_max(in2,node_core_w0, node_core_b0);
 #endif
 
+#ifdef VERBOSE
       printf("nc0: n=%d  ",n);
       for(int jj=0; jj<8; jj++){
-	printf("%6.2f ",nc0[0][jj]);
+	      printf("%6.2f ",nc0[0][jj]);
       }
       printf("\n");
-
+#endif
 
 #if (USE_WEIGHTS == 0)
       f2vec nc1 = dot_bias_max(nc0,node::core::w1, node::core::b1);
@@ -489,12 +491,13 @@ int gnn_model(f2vec nodes,  f2vec edges, std::vector<int> senders, std::vector<i
       f2vec nc1 = dot_bias_max(nc0,node_core_w1, node_core_b1);
 #endif
 
+#ifdef VERBOSE
       printf("nc1: n=%d  ",n);
       for(int jj=0; jj<8; jj++){
-	printf("%6.2f ",nc1[0][jj]);
+	      printf("%6.2f ",nc1[0][jj]);
       }
       printf("\n");
-
+#endif
 
       nodes_update[n] = nc1[0];
  

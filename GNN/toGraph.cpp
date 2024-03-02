@@ -9,6 +9,7 @@
 #include <algorithm>
 
 #include "gnn_model.h"
+//#define VERBOSE
 
 const unsigned long NMAX=21;
 const unsigned long EMAX=42;
@@ -140,11 +141,12 @@ void convertToGraph(std::vector<std::vector<float>>& nodes, std::vector<std::vec
       edges.at(cnt)={angle,dist};
       senders.at(cnt)=i;
       receivers.at(cnt)=j;
-
+#ifdef VERBOSE
       std::cout << " cnt= " << cnt << "==>>  i = " << i << " j " << j << " dist = "
 		<< dist << " angle = " << angle
 	//		<< " edge_counter = " << edge_counter
 		<< " tan(MAX_ANGLE) = " << MAX_ANGLE << std::endl;
+#endif
       cnt++;
     }
   }
@@ -335,26 +337,30 @@ int doPattern(std::vector<float>& x, std::vector<float>& y, std::vector<int>& hi
   std::vector<std::vector<float>> edges(EMAX,std::vector<float>(2,-1));
   std::vector<int> senders(EMAX,0);
   std::vector<int> receivers(EMAX,0);
-
+#ifdef VERBOSE
   printf("x,y size: %d %d\n", x.size(), y.size());
+#endif
   for(int i = 0; i < std::min(NMAX,x.size()); i++){
     nodes[i][0] = x[i];
     nodes[i][1] = y[i];
   }
+#ifdef VERBOSE
   printf("Initialized\n\n");
-
+#endif
   printVector("doPattern:: nodes",nodes);
   convertToGraph(nodes, edges, senders, receivers);
 
   printVector("doPattern:: edges",edges);
   printVector("doPattern:: senders",senders);
   printVector("doPattern:: receivers",receivers);
-
+#ifdef VERBOSE
   printf("====================== gnn_model ===================\n");
+#endif
   std::vector<float> output;
   gnn_model(nodes, edges, senders, receivers, output);
+#ifdef VERBOSE
   printf("====================== end gnn_model ===================\n");
-
+#endif
   // std::vector<std::vector<int>> tracks;
   fromGraph(hits_out, nodes.size(), senders, receivers, output);
   return 0;
@@ -515,12 +521,12 @@ int main(){
   doPattern(x, y, tracks);
 
   // printVector("tracks", tracks);
-
+#ifdef VERBOSE
   for(int i = 0; i < tracks.size(); i++){
     printf(" %d |  %8.2f,%8.2f\n", tracks[i], x[i], y[i]);
   }
   printf("\n\n");
-
+#endif
 
   /*
 
