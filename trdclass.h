@@ -54,9 +54,9 @@ class trdclass {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
-
+   
 // Fixed size dimensions of array or collections stored in the TTree if any.
-
+   
    // Declaration of leaf types
    ULong64_t       srs_raw_count;
    vector<unsigned int> *srs_raw_roc;
@@ -158,7 +158,7 @@ public :
    vector<double>  *gem_peak_width;
    vector<double>  *gem_peak_area;
    vector<double>  *gem_peak_real_pos;
-
+   
    // List of branches
    TBranch        *b_srs_raw_count;   //!
    TBranch        *b_srs_raw_roc;   //!
@@ -260,7 +260,7 @@ public :
    TBranch        *b_gem_peak_width;   //!
    TBranch        *b_gem_peak_area;   //!
    TBranch        *b_gem_peak_real_pos;   //!
-
+   
    trdclass(int RunNum, int MaxEvt, int FirstEvt);
    virtual ~trdclass();
    virtual Int_t    Cut(Long64_t entry);
@@ -275,8 +275,8 @@ public :
    void Count(const char *tit, double cut1);
    void Count(const char *tit, double cut1, double cut2);
    
-   //==================  histograms ========================
-
+   //==================  Histograms ========================
+   
    int RunNum;
    Long64_t MaxEvt;
    Long64_t FirstEvt;
@@ -302,53 +302,62 @@ public :
    TH1F *hCher_u_time;
    TH1F *hCher_din_time;
    TH1F *hCher_dout_time;
-   TH1F *gem_trk_fit_integral;
-
+   //TH1F *gem_trk_fit_integral;
+   
    TH2F *hCCor_ud;
    TH2F *hCCCor_u;
    TH2F *hCCCor_dout;
+   TH2F *srs_cal_corr, *srs_gemtrd_el, *srs_etrd_beam, *srs_gemtrd_pion, *srs_etrd_ratio;
    TH2F *multiTrackIndex, *multiTrackIndex_e, *multiTrackIndex_pi;
    TH2F *singleTrackIndex, *singleTrackIndex_e, *singleTrackIndex_pi;
-   TH1F *hgemtrkr_x;
-   TH1F *hgemtrkr_y;
    TH1F *hgemtrkr_peak_x;
    TH1F *hgemtrkr_peak_y;
-   TH2F *hgemtrkr_peak_xy, *hgemtrkr_ch_xy, *srs_trk_pi, *srs_gem_dx, *srs_gem_dy, *hgemtrkr_peak_xy_chi2, *srs_gem_x, *srs_cal_corr, *srs_gemtrd_el, *srs_etrd_beam, *srs_gemtrd_pion, *srs_etrd_ratio, *srs_mmg1_dx, *srs_mmg1_dy, *srs_mmg1_x, *srs_mmg1_y, *srs_urw_dx, *srs_urw_dy, *srs_urw_x, *srs_urw_y, *srs_mmg2_dx, *srs_mmg2_dy, *srs_mmg2_x, *srs_mmg2_y;
-
-   TH1F *f125_el, *f125_el_max, *f125_el_chi2, *f125_el_fita, *mmg1_f125_el_chi2, *mmg1_f125_el_fita, *urw_f125_el_chi2, *urw_f125_el_fita, *mmg2_f125_el_chi2, *mmg2_f125_el_fita;
-   TH1F *f125_pi, *f125_pi_max, *f125_pi_chi2, *f125_pi_fita, *mmg1_f125_pi_chi2, *mmg1_f125_pi_fita, *urw_f125_pi_chi2, *urw_f125_pi_fita, *mmg2_f125_pi_chi2, *mmg2_f125_pi_fita;
-   TH2F *f125_el_amp2d, *f125_el_amp2ds, *f125_el_evt_display, *f125_el_raw, *f125_el_fit, *f125_fit, *mmg1_f125_el_fit, *mmg1_f125_fit, *urw_f125_el_fit, *urw_f125_fit, *mmg2_f125_el_fit, *mmg2_f125_fit, *mmg1_f125_el_amp2ds, *urw_f125_el_amp2ds, *mmg2_f125_el_amp2ds;
-   TH2F *f125_pi_amp2d, *f125_pi_amp2ds, *f125_pi_evt_display, *f125_pi_raw, *f125_pi_fit, *mmg1_f125_pi_fit, *urw_f125_pi_fit, *mmg2_f125_pi_fit, *mmg1_f125_pi_amp2ds, *urw_f125_pi_amp2ds, *mmg2_f125_pi_amp2ds;
-   TH2F *f125_el_clu2d;
-   TH2F *f125_pi_clu2d;
-
-   TH1F *mmg1_f125_el;
-   TH1F *mmg1_f125_pi;
+   TH2F *hgemtrkr_peak_xy, *hgemtrkr_ch_xy, *hgemtrkr_peak_xy_chi2;
+   TH2F *srs_gem_x, *srs_gem_dx, *srs_gem_dy;
+   TH2F *srs_mmg1_dx, *srs_mmg1_dy, *srs_mmg1_x, *srs_mmg1_y;
+   TH2F *srs_urw_dx, *srs_urw_dy, *srs_urw_x, *srs_urw_y;
+   TH2F *srs_mmg2_dx, *srs_mmg2_dy, *srs_mmg2_x, *srs_mmg2_y;
+   
+   TH1F *f125_el, *f125_el_max;
+   TH1F *f125_el_chi2, *f125_el_fita, *mmg1_f125_el_chi2, *mmg1_f125_el_fita, *urw_f125_el_chi2, *urw_f125_el_fita, *mmg2_f125_el_chi2, *mmg2_f125_el_fita;
+   TH1F *f125_pi, *f125_pi_max;
+   TH1F *f125_pi_chi2, *f125_pi_fita, *mmg1_f125_pi_chi2, *mmg1_f125_pi_fita, *urw_f125_pi_chi2, *urw_f125_pi_fita, *mmg2_f125_pi_chi2, *mmg2_f125_pi_fita;
+   TH2F *f125_el_amp2d, *f125_el_amp2ds, *f125_el_evt_display, *f125_el_raw;
+   TH2F *f125_el_fit, *f125_fit, *mmg1_f125_el_fit, *mmg1_f125_fit, *urw_f125_el_fit, *urw_f125_fit, *mmg2_f125_el_fit, *mmg2_f125_fit;
+   TH2F *mmg1_f125_el_amp2ds, *urw_f125_el_amp2ds, *mmg2_f125_el_amp2ds;
+   TH2F *f125_pi_amp2d, *f125_pi_amp2ds, *f125_pi_evt_display, *f125_pi_raw;
+   TH2F *f125_pi_fit, *mmg1_f125_pi_fit, *urw_f125_pi_fit, *mmg2_f125_pi_fit;
+   TH2F *mmg1_f125_pi_amp2ds, *urw_f125_pi_amp2ds, *mmg2_f125_pi_amp2ds;
+   //TH2F *f125_el_clu2d;
+   //TH2F *f125_pi_clu2d;
+   
+   TH1F *mmg1_f125_el, *mmg1_f125_el_max;
+   TH1F *mmg1_f125_pi, *mmg1_f125_pi_max;
    TH2F *mmg1_f125_el_amp2d;
    TH2F *mmg1_f125_pi_amp2d;
-   TH2F *mmg1_f125_el_clu2d;
-   TH2F *mmg1_f125_pi_clu2d;
-
-   TH1F *mmg2_f125_el;
-   TH1F *mmg2_f125_pi;
+   //TH2F *mmg1_f125_el_clu2d;
+   //TH2F *mmg1_f125_pi_clu2d;
+   
+   TH1F *mmg2_f125_el, *mmg2_f125_el_max;
+   TH1F *mmg2_f125_pi, *mmg2_f125_pi_max;
    TH2F *mmg2_f125_el_amp2d;
    TH2F *mmg2_f125_pi_amp2d;
-   TH2F *mmg2_f125_el_clu2d;
-   TH2F *mmg2_f125_pi_clu2d;
-
-   TH1F *urw_f125_el;
-   TH1F *urw_f125_pi;
+   //TH2F *mmg2_f125_el_clu2d;
+   //TH2F *mmg2_f125_pi_clu2d;
+   
+   TH1F *urw_f125_el, *urw_f125_el_max;
+   TH1F *urw_f125_pi, *urw_f125_pi_max;
    TH2F *urw_f125_el_amp2d;
    TH2F *urw_f125_pi_amp2d;
-   TH2F *urw_f125_el_clu2d;
-   TH2F *urw_f125_pi_clu2d;
+   //TH2F *urw_f125_el_clu2d;
+   //TH2F *urw_f125_pi_clu2d;
    
    TH2F *hevt, *hevtc, *hevti, *hevtf;
    
-   TH2F *ch_gem_mmg1;
-   TH2F *ch_gem_urw;
-   TH2F *ch_gem_mmg2;
-   TH2F *ch_mmg1_urw;
+   //TH2F *ch_gem_mmg1;
+   //TH2F *ch_gem_urw;
+   //TH2F *ch_gem_mmg2;
+   //TH2F *ch_mmg1_urw;
    
    TH2F *gem_mmg1_x;
    TH2F *gem_urw_x;
