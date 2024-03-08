@@ -166,7 +166,7 @@ void trdclass::Loop() {
   int MM_THR=65;
   if (RunNum>3250) MM_THR=80;
   int URW_THR=105;
-  int GEM_THR=100;
+  int GEM_THR=120;
 
 //============= Event Display (canvas 0) =============
   #ifdef SHOW_EVT_DISPLAY
@@ -237,37 +237,37 @@ void trdclass::Loop() {
   hCCor_ud = new TH2F("hCCor_ud"," Cherenkov Upstr./Downstr. Corr ; Upstream ; Downstream (out) ",400,-0.5,4095.5,400,0.5,4095.5);  HistList->Add(hCCor_ud);
   
   //-- GEM-TRKR & Prototype Correlations
-  srs_gem_dx = new TH2F("srs_gem_dx","Correlation GEMTRD X & GEMTRKR X (Peaks) ; GEMTRD X [mm]; GEMTRKR Peak X [mm]",240,-60.,60.,256,-64.,64.);    HistList->Add(srs_gem_dx);
-  srs_gem_dy = new TH2F("srs_gem_dy","Correlation GEMTRD X & GEMTRKR Y (Peaks) ; GEMTRD X [mm]; GEMTRKR Peak Y [mm]",240,-60.,60.,256,-64.,64.);    HistList->Add(srs_gem_dy);
+  srs_gem_dx = new TH2F("srs_gem_dx","Correlation GEMTRD X & GEMTRKR X (Peaks) ; GEMTRD X [mm]; GEMTRKR Peak X [mm]",240,-60.,60.,256,-64.,64.);    //HistList->Add(srs_gem_dx);
+  srs_gem_dy = new TH2F("srs_gem_dy","Correlation GEMTRD X & GEMTRKR Y (Peaks) ; GEMTRD X [mm]; GEMTRKR Peak Y [mm]",240,-60.,60.,256,-64.,64.);    //HistList->Add(srs_gem_dy);
   srs_mmg1_x = new TH2F("srs_mmg1_x","Correlation MMG1TRD Y & GEMTRKR X (Peaks); GEMTRKR Peak X [mm] ; MMG-1 Peak(SRS) Y [mm]",256,-64.,64.,256,-64.,64.);    HistList->Add(srs_mmg1_x);
-  srs_mmg1_dx = new TH2F("srs_mmg1_dx","Correlation MMG1TRD X & GEMTRKR X (Peaks); MMG-1 X [mm]; GEMTRKR Peak X [mm]",240,-60.,60.,256,-64.,64.);    HistList->Add(srs_mmg1_dx);
-  srs_mmg1_dy = new TH2F("srs_mmg1_dy","Correlation MMG1TRD X & GEMTRKR Y ; MMG-1 X [mm]; GEMTRKR Peak Y [mm]",240,-60.,60.,256,-64.,64.);    HistList->Add(srs_mmg1_dy);
+  srs_mmg1_dx = new TH2F("srs_mmg1_dx","Correlation MMG1TRD X & GEMTRKR X (Peaks); MMG-1 X [mm]; GEMTRKR Peak X [mm]",240,-60.,60.,256,-64.,64.);    //HistList->Add(srs_mmg1_dx);
+  srs_mmg1_dy = new TH2F("srs_mmg1_dy","Correlation MMG1TRD X & GEMTRKR Y ; MMG-1 X [mm]; GEMTRKR Peak Y [mm]",240,-60.,60.,256,-64.,64.);    //HistList->Add(srs_mmg1_dy);
   srs_mmg1_y = new TH2F("srs_mmg1_y","Correlation MMG1TRD Y & GEMTRKR Y (Peaks); GEMTRKR Peak Y [mm]; MMG-1 Peak(SRS) Y [mm]",256,-64.,64.,256,-64.,64.);    HistList->Add(srs_mmg1_y);
   if (RunNum>3147 && RunNum<3262) {
   srs_urw_x = new TH2F("srs_urw_x","Correlation uRWellTRD Y & GEMTRKR X (Peaks); GEMTRKR Peak X; uRWell Peak(SRS) Y [mm]",256,-64.,64.,128,-64.,64.);    HistList->Add(srs_urw_x);
-  srs_urw_dx = new TH2F("srs_urw_dx","Correlation uRWellTRD X & GEMTRKR X (Peaks); uRWell X [mm]; GEMTRKR Peak X [mm]",120,-60.,60.,256,-64.,64.);    HistList->Add(srs_urw_dx);
-  srs_urw_dy = new TH2F("srs_urw_dy","Correlation uRWellTRD X & GEMTRKR Y (Peaks) ; uRWell X [mm] ; GEMTRKR Peak Y [mm]",120,-60.,60.,256,-64.,64.);    HistList->Add(srs_urw_dy);
+  srs_urw_dx = new TH2F("srs_urw_dx","Correlation uRWellTRD X & GEMTRKR X (Peaks); uRWell X [mm]; GEMTRKR Peak X [mm]",120,-60.,60.,256,-64.,64.);    //HistList->Add(srs_urw_dx);
+  srs_urw_dy = new TH2F("srs_urw_dy","Correlation uRWellTRD X & GEMTRKR Y (Peaks) ; uRWell X [mm] ; GEMTRKR Peak Y [mm]",120,-60.,60.,256,-64.,64.);    //HistList->Add(srs_urw_dy);
   srs_urw_y = new TH2F("srs_urw_y","Correlation uRWellTRD Y & GEMTRKR Y (Peaks); GEMTRKR Peak Y [mm]; uRWell Peak(SRS) Y [mm]",256,-64.,64.,128,-64.,64.);    HistList->Add(srs_urw_y);
   } else if (RunNum>3261) {
   srs_mmg2_x = new TH2F("srs_mmg2_x","Correlation MMG2TRD Y & GEMTRKR X (Peaks); GEMTRKR Peak X [mm]; MMG-2 Peak(SRS) Y [mm]",256,-64.,64.,128,-64.,64.);    HistList->Add(srs_mmg2_x);
-  srs_mmg2_dx = new TH2F("srs_mmg2_dx","Correlation MMG2TRD X & GEMTRKR X (Peaks) ; MMG-2 X [mm]; GEMTRKR Peak X [mm]",72,-72.,72.,256,-64.,64.);    HistList->Add(srs_mmg2_dx);
-  srs_mmg2_dy = new TH2F("srs_mmg2_dy","Correlation MMG2TRD & GEMTRKR X&Y; MMG-2 X [mm] ; GEMTRKR Peak Y [mm]",72,-72.,72.,256,-64.,64.);    HistList->Add(srs_mmg2_dy);
+  srs_mmg2_dx = new TH2F("srs_mmg2_dx","Correlation MMG2TRD X & GEMTRKR X (Peaks) ; MMG-2 X [mm]; GEMTRKR Peak X [mm]",72,-72.,72.,256,-64.,64.);    //HistList->Add(srs_mmg2_dx);
+  srs_mmg2_dy = new TH2F("srs_mmg2_dy","Correlation MMG2TRD & GEMTRKR X&Y; MMG-2 X [mm] ; GEMTRKR Peak Y [mm]",72,-72.,72.,256,-64.,64.);    //HistList->Add(srs_mmg2_dy);
   srs_mmg2_y = new TH2F("srs_mmg2_y","Correlation MMG2TRD & GEMTRKR Y (Peaks); GEMTRKR Peak Y [mm]; MMG-2 Y [mm]",256,-64.,64.,128,-64.,64.);    HistList->Add(srs_mmg2_y);
   }
   //-- GEM-TRD & Other TRD Prototypes fADC Correlations
   if (RunNum>3147 && RunNum<3262) {
-    gem_urw_x = new TH2F("gem_urw_x","Correlation GEMTRD X & uRWell X ; GEMTRD X [mm]; uRWell X [mm]",240,-60.,60.,120,-60.,60.);    HistList->Add(gem_urw_x);
-    gem_urw_y = new TH2F("gem_urw_y","Correlation GEMTRD X & uRWell Y ; GEMTRD X [mm] ; uRWell Y(SRS) [mm]",240,-60.,60.,128,-64.,64.);    HistList->Add(gem_urw_y);
-    urw_xy = new TH2F("urw_xy","Correlation uRWellTRD X&Y ; uRWell X [mm] ; uRWell Y(SRS) [mm]",120,-60.,60.,128,-64.,64.);    HistList->Add(urw_xy);
-    mmg1_urw_y = new TH2F("mmg1_urw_y","Correlation MMG1 Y & uRWell Y ; uRWell Y(SRS) [mm]; MMG-1 Y(SRS) [mm]",128,-64.,64.,256,-64.,64.);    HistList->Add(mmg1_urw_y);
+    gem_urw_x = new TH2F("gem_urw_x","Correlation GEMTRD X & uRWell X ; GEMTRD X [mm]; uRWell X [mm]",240,-60.,60.,120,-60.,60.);    //HistList->Add(gem_urw_x);
+    gem_urw_y = new TH2F("gem_urw_y","Correlation GEMTRD X & uRWell Y ; GEMTRD X [mm] ; uRWell Y(SRS) [mm]",240,-60.,60.,128,-64.,64.);    //HistList->Add(gem_urw_y);
+    urw_xy = new TH2F("urw_xy","Correlation uRWellTRD X&Y ; uRWell X [mm] ; uRWell Y(SRS) [mm]",120,-60.,60.,128,-64.,64.);    //HistList->Add(urw_xy);
+    mmg1_urw_y = new TH2F("mmg1_urw_y","Correlation MMG1 Y & uRWell Y ; uRWell Y(SRS) [mm]; MMG-1 Y(SRS) [mm]",128,-64.,64.,256,-64.,64.);    //HistList->Add(mmg1_urw_y);
   } else if (RunNum>3261) {
-    gem_mmg2_x = new TH2F("gem_mmg2_x","Correlation GEMTRD X & MMG2 X ; GEMTRD X [mm]; MMG-2 X [mm]",240,-60.,60.,72,-72.,72.);    HistList->Add(gem_mmg2_x);
-    gem_mmg2_y = new TH2F("gem_mmg2_y","Correlation GEMTRD X & MMG2 Y ; GEMTRD X [mm] ; MMG-2 Y(SRS) [mm]",240,-60.,60.,128,-64.,64.);    HistList->Add(gem_mmg2_y);
-    mmg2_xy = new TH2F("mmg2_xy","Correlation MMG2TRD X&Y ; MMG-2 X [mm] ; MMG-2 Y(SRS) [mm]",72,-72.,72.,128,-64.,64.);    HistList->Add(mmg2_xy);
+    gem_mmg2_x = new TH2F("gem_mmg2_x","Correlation GEMTRD X & MMG2 X ; GEMTRD X [mm]; MMG-2 X [mm]",240,-60.,60.,72,-72.,72.);    //HistList->Add(gem_mmg2_x);
+    gem_mmg2_y = new TH2F("gem_mmg2_y","Correlation GEMTRD X & MMG2 Y ; GEMTRD X [mm] ; MMG-2 Y(SRS) [mm]",240,-60.,60.,128,-64.,64.);    //HistList->Add(gem_mmg2_y);
+    mmg2_xy = new TH2F("mmg2_xy","Correlation MMG2TRD X&Y ; MMG-2 X [mm] ; MMG-2 Y(SRS) [mm]",72,-72.,72.,128,-64.,64.);    //HistList->Add(mmg2_xy);
   }
-  gem_mmg1_x = new TH2F("gem_mmg1_x","Correlation GEMTRD X & MMG1 X ; GEMTRD X [mm]; MMG-1 X [mm]",240,-60.,60.,240,-60.,60.);    HistList->Add(gem_mmg1_x);
-  gem_mmg1_y = new TH2F("gem_mmg1_y","Correlation GEMTRD X & MMG1 Y ; GEMTRD X [mm] ; MMG-1 Y(SRS) [mm]",240,-60.,60.,256,-64.,64.);    HistList->Add(gem_mmg1_y);
-  mmg1_xy = new TH2F("mmg1_xy","Correlation MMG1TRD X&Y ; MMG-1 X [mm] ; MMG-1 Y(SRS) [mm]",240,-60.,60.,256,-64.,64.);    HistList->Add(mmg1_xy);
+  gem_mmg1_x = new TH2F("gem_mmg1_x","Correlation GEMTRD X & MMG1 X ; GEMTRD X [mm]; MMG-1 X [mm]",240,-60.,60.,240,-60.,60.);    //HistList->Add(gem_mmg1_x);
+  gem_mmg1_y = new TH2F("gem_mmg1_y","Correlation GEMTRD X & MMG1 Y ; GEMTRD X [mm] ; MMG-1 Y(SRS) [mm]",240,-60.,60.,256,-64.,64.);    //HistList->Add(gem_mmg1_y);
+  mmg1_xy = new TH2F("mmg1_xy","Correlation MMG1TRD X&Y ; MMG-1 X [mm] ; MMG-1 Y(SRS) [mm]",240,-60.,60.,256,-64.,64.);    //HistList->Add(mmg1_xy);
   
   //-- GEM-TRKR & PID/Beam Correlations
   //srs_cal_corr = new TH2F("srs_cal_corr","Correlation GEMTRKR & CAL; X ; Y ",100,-55.,55.,100,-55.,55.);  HistList->Add(srs_cal_corr);
@@ -289,7 +289,7 @@ void trdclass::Loop() {
   double x_1=-48., y_1=-55., x_2=54., y_2=51.;
   double a_slope=(y_2-y_1)/(x_2-x_1);
   double b_intercept=y_1-a_slope*x_1;
-  double x_boxcut1=-50., x_boxcut2=+50., y_boxcut1=-50., y_boxcut2=+50.;
+  double x_cut1=-50., x_cut2=+50., y_cut1=-50., y_cut2=+50.;
   TF1 ftrk("ftrk","[0]*x+[1]",-55.,55.);
   ftrk.SetParameter(0,a_slope);
   ftrk.SetParameter(1,b_intercept);
@@ -604,10 +604,6 @@ void trdclass::Loop() {
         }
       }
     #endif
-    //double x0_urw=-999;
-    //double x0_mmg1=-999;
-    //double x0_mmg2=-999;
-    //double x0_gem=-999;
     
 //=====================================================
 //        Process Fa125 RAW data
@@ -1139,6 +1135,11 @@ void trdclass::Loop() {
 //===========================================================
       
       ULong64_t gt_idx_x = 0, gt_idx_y=0, mmg1_idx_y=0, urw_idx_y=0, mmg2_idx_y=0;
+      //double x0_urw=-999;
+      //double x0_mmg1=-999;
+      //double x0_mmg2=-999;
+      //double x0_gem=-999;
+      
       double gemtrkr_peak_pos_y[gem_peak_count];
       double gemtrkr_peak_pos_x[gem_peak_count];
       double mmg1_peak_pos_y[gem_peak_count];
@@ -1147,10 +1148,8 @@ void trdclass::Loop() {
       int gemtrkr_peak_ch_y[gem_peak_count];
       int gemtrkr_peak_ch_x[gem_peak_count];
       
-      if (NTRACKS==1 && electron) n_e_1++; Count("n_e_1");
-      if (NTRACKS==1 && pion) n_pi_1++; Count("n_pi_1");
-      if (NTRACKS==2 && electron) n_e_2++; Count("n_e_2");
-      if (NTRACKS==2 && pion) n_pi_2++; Count("n_pi_2");
+      //if (NTRACKS==2 && electron) n_e_2++; Count("n_e_2");
+      //if (NTRACKS==2 && pion) n_pi_2++; Count("n_pi_2");
       
       for (ULong64_t i=0; i<gem_peak_count; i++) {
         gemtrkr_peak_pos_y[gem_peak_count] = 0.;
@@ -1255,39 +1254,53 @@ void trdclass::Loop() {
 //    GEM TRKR Fuducial Area (Y-Direction) Selection
 //==========================================================
     
-      bool fiducialArea=true;
-/*
-    if (RunNum > 3200 && RunNum < 3203) { //-- GEMTRD Double Fleece
-      //if (x_boxcut1>gemtrkr_peak_x || gemtrkr_peak_x>x_boxcut2 || y_boxcut1 > gemtrkr_peak_y || gemtrkr_peak_y > y_boxcut2) fiducialArea=false;)
-      x_boxcut1=-50., x_boxcut2=50., y_boxcut1=-20., y_boxcut2=15.;
-      if (x_boxcut1>x0_gem || x0_gem>x_boxcut2 || y_boxcut1>gemtrkr_peak_pos_y || gemtrkr_peak_pos_y>y_boxcut2) fiducialArea=false;
-    }
-    if (RunNum > 3124 && RunNum < 3132) { //-- GEMTRD Single Fleece
-      x_boxcut1=-50., x_boxcut2=50., y_boxcut1=-25., y_boxcut2=25.;
-      //if (x_boxcut1>gemtrkr_peak_x || gemtrkr_peak_x>x_boxcut2 || y_boxcut1 > gemtrkr_peak_y || gemtrkr_peak_y > y_boxcut2) fiducialArea=false;
-      if (x_boxcut1>x0_gem || x0_gem>x_boxcut2 || y_boxcut1>gemtrkr_peak_pos_y || gemtrkr_peak_pos_y>y_boxcut2) fiducialArea=false;
-    }
-    if (RunNum > 3131 && RunNum < 3135) { //-- GEMTRD Single Foil (VU)
-      x_boxcut1=-50., x_boxcut2=50., y_boxcut1=-40., y_boxcut2=40.;
-      //if (x_boxcut1>gemtrkr_peak_x || gemtrkr_peak_x>x_boxcut2 || y_boxcut1 > gemtrkr_peak_y || gemtrkr_peak_y > y_boxcut2) fiducialArea=false;
-      if (x_boxcut1>x0_gem || x0_gem>x_boxcut2 || y_boxcut1>gemtrkr_peak_pos_y || gemtrkr_peak_pos_y>y_boxcut2) fiducialArea=false;
-    }
-    if (RunNum > 3274 && RunNum < 3289) { //-- GEMTRD Single Foil (TU)
-      x_boxcut1=-50., x_boxcut2=50., y_boxcut1=-40., y_boxcut2=40.;
-      //if (x_boxcut1>gemtrkr_peak_x || gemtrkr_peak_x>x_boxcut2 || y_boxcut1 > gemtrkr_peak_y || gemtrkr_peak_y > y_boxcut2) fiducialArea=false;
-      if (x_boxcut1>x0_gem || x0_gem>x_boxcut2 || y_boxcut1>gemtrkr_peak_pos_y || gemtrkr_peak_pos_y>y_boxcut2) fiducialArea=false;
-    }
-    if (RunNum >  3195 && RunNum < 3201) { //-- GEMTRD Double Foil
-      x_boxcut1=-50., x_boxcut2=50., y_boxcut1=-40., y_boxcut2=40.;
-      //if (x_boxcut1>gemtrkr_peak_x || gemtrkr_peak_x>x_boxcut2 || y_boxcut1 > gemtrkr_peak_y || gemtrkr_peak_y > y_boxcut2) fiducialArea=false;
-      if (x_boxcut1>x0_gem || x0_gem>x_boxcut2 || y_boxcut1>gemtrkr_peak_pos_y || gemtrkr_peak_pos_y>y_boxcut2) fiducialArea=false;
-    }
-    if (RunNum > 3202 && RunNum < 3205) { //-- GEMTRD No Radiator
-      x_boxcut1=-50., x_boxcut2=50., y_boxcut1=-50., y_boxcut2=50.;
-      //if (x_boxcut1>gemtrkr_peak_x || gemtrkr_peak_x>x_boxcut2 || y_boxcut1 > gemtrkr_peak_y || gemtrkr_peak_y > y_boxcut2) fiducialArea=false;
-      if (x_boxcut1>x0_gem || x0_gem>x_boxcut2 || y_boxcut1>gemtrkr_peak_pos_y || gemtrkr_peak_pos_y>y_boxcut2) fiducialArea=false;
-    }
-*/
+      bool fiducialArea=false;
+      
+      if ((RunNum > 3200 && RunNum < 3203) || (RunNum >  3245 && RunNum < 3249)) { //-- GEMTRD Double Fleece
+        x_cut1=-50., x_cut2=50., y_cut1=-20., y_cut2=15.;
+        for (ULong64_t i=0; i<=gt_idx_y; i++) {
+          if (y_cut2>gemtrkr_peak_pos_y[gt_idx_y] && gemtrkr_peak_pos_y[gt_idx_y]>y_cut1) {
+            fiducialArea=true; 
+            break;
+          }
+        }
+      }
+      if (RunNum > 3124 && RunNum < 3132) { //-- GEMTRD Single Fleece
+        x_cut1=-50., x_cut2=50., y_cut1=-25., y_cut2=25.;
+        for (ULong64_t i=0; i<=gt_idx_y; i++) {
+          if (y_cut2>gemtrkr_peak_pos_y[gt_idx_y] && gemtrkr_peak_pos_y[gt_idx_y]>y_cut1) {
+            fiducialArea=true; 
+            break;
+          }
+        }
+      }
+      if ((RunNum > 3131 && RunNum < 3135) || (RunNum >  3249 && RunNum < 3254)) { //-- GEMTRD Single Foil (VU)
+        x_cut1=-50., x_cut2=50., y_cut1=-50., y_cut2=50.;
+        fiducialArea=true;
+      }
+      if (RunNum > 3274 && RunNum < 3289) { //-- GEMTRD Single Foil (TU)
+        x_cut1=-50., x_cut2=50., y_cut1=-40., y_cut2=40.;
+        for (ULong64_t i=0; i<=gt_idx_y; i++) {
+          if (y_cut2>gemtrkr_peak_pos_y[gt_idx_y] && gemtrkr_peak_pos_y[gt_idx_y]>y_cut1) {
+            fiducialArea=true; 
+            break;
+          }
+        }
+      }
+      if ((RunNum >  3195 && RunNum < 3201) || (RunNum >  3214 && RunNum < 3219)) { //-- GEMTRD Double Foil
+        x_cut1=-50., x_cut2=50., y_cut1=-40., y_cut2=40.;
+        for (ULong64_t i=0; i<=gt_idx_y; i++) {
+          if (y_cut2>gemtrkr_peak_pos_y[gt_idx_y] && gemtrkr_peak_pos_y[gt_idx_y]>y_cut1) {
+            fiducialArea=true; 
+            break;
+          }
+        }
+      }
+      if (RunNum > 3202 && RunNum < 3205) { //-- GEMTRD No Radiator
+        x_cut1=-50., x_cut2=50., y_cut1=-50., y_cut2=50.;
+        fiducialArea=true;
+      }
+      
 //======== END GEM TRKR Fuducial Area Selection =========
     
 //============================================================================
@@ -1343,6 +1356,9 @@ void trdclass::Loop() {
         double mmg1_amp_max = 0.;
         double urw_amp_max = 0.;
         double mmg2_amp_max = 0.;
+        n_1++; Count("n_1");
+        if (electron) { n_e_1++; Count("n_e_1"); }
+        if (pion) { n_pi_1++; Count("n_pi_1"); }
         
         for (ULong64_t i=0;i<f125_pulse_count; i++) { //--- Fadc125 Pulse Loop
           
@@ -1536,7 +1552,7 @@ void trdclass::Loop() {
         c0->cd(11); srs_etrd_ratio->DrawCopy("colz");
         c0->Modified();   c0->Update();
         //c0->cd(11); srs_gemtrd_el->Draw("colz");
-        TBox fbox(x_boxcut1,y_boxcut1,x_boxcut2,y_boxcut2);  //---- draw box cut ---
+        TBox fbox(x_cut1,y_cut1,x_cut2,y_cut2);  //---- draw box cut ---
         fbox.SetLineColor(kRed);
         fbox.SetFillStyle(0);
         fbox.SetLineWidth(2);
@@ -1629,7 +1645,7 @@ void trdclass::Loop() {
     cc=NextPlot(nxd,nyd);  mmg1_xy->Draw("colz");
     if (RunNum<3262 && RunNum>3147) {urw_xy->Draw("colz");} else if (RunNum>3261) {mmg2_xy->Draw("colz");}
     /*  cc=NextPlot(nxd,nyd);  srs_gemtrd_el->Draw("colz");
-    TBox fbox(x_boxcut1,y_boxcut1,x_boxcut2,y_boxcut2);  //---- draw box cut ---
+    TBox fbox(x_cut1,y_cut1,x_cut2,y_cut2);  //---- draw box cut ---
     fbox.Draw("same");
     fbox.SetLineColor(kRed);
     fbox.SetFillStyle(0);

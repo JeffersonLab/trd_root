@@ -1,7 +1,3 @@
-//
-// .x   trd_mlp.C++("hd_rawdata_000554_000.evio.root",1);   //   1-WC,  0-GEM
-// .x   trd_mlp.C++(554,1);                                 // new
-// .x   trd_mlp_fermi.C++(3200);    // fermi
 #include <sstream>
 #include "TROOT.h"
 #include "TFile.h"
@@ -61,21 +57,9 @@ int RunNum;
 
 //----------------------------------------------------------------------
 int hgive1(TH1 *hp, int *nx, double *xmi, double *xma) {
-  //int hgive1(TH1F *hp) {
-  //Int_t  nx=0;
-  //double xmi=0., xma=0., sum=0.;
-  
   *nx=hp->GetNbinsX();
-  *xmi=hp->GetBinLowEdge(1);  //h1.GetXaxis().GetBinLowEdge(bin)
-  *xma=hp->GetBinLowEdge(*nx)+hp->GetBinWidth(*nx); // h1.GetXaxis().GetBinWidth(bin)
-  //sum=hp->Integral(1,nx);
-
-  //cout << " hist: nx=" << nx << " xmi=" << xmi << " xma=" << xma << "  sum=" << sum  << endl;
-  
-  //hp->GetBinContent(int i);
-  //  GetEntries()
-  //  Integral(Int_t    binx1,  Int_t   binx2,  Option_t *      option = "" );
-  //Double_t TH1::Interpolate ( Double_t  x )
+  *xmi=hp->GetBinLowEdge(1);
+  *xma=hp->GetBinLowEdge(*nx)+hp->GetBinWidth(*nx);
   return hp->GetEntries();
 }
 
@@ -90,7 +74,7 @@ int hscale(TH1 *he, TH1 *hpi, double scale, int NORM, int DRAW) {
   else ret = 1; // -- 1 == error
 
   string name = hpi->GetName();
-  printf("NORM :: hist=%s<<< noent e=%d pi=%d e-scale=%f \n", name.c_str(), noent_e, noent_pi, escale);
+  //printf("NORM :: hist=%s<<< noent e=%d pi=%d e-scale=%f \n", name.c_str(), noent_e, noent_pi, escale);
   if (NORM) he->Scale(escale);
   if (DRAW>0) {
     double maxe = he->GetMaximum();
@@ -111,26 +95,29 @@ int hscale(TH1 *he, TH1 *hpi, double scale, int NORM, int DRAW) {
      TPaveStats *ps0 = (TPaveStats*)h0->GetListOfFunctions()->FindObject("stats");
      ps0->SetTextColor(kBlue);
      gPad->Modified(); gPad->Update();
-     //------
   }
   return ret;
 } //-- end hscale
 
 //------- Rejection Factor Calculation -----------------------------------
 double Reject(TH1 *hp, TH1 *he, double thr) {
-  double s[202][2], r1, w, Rej, XMI, XMA, es, ps, e1=0. , e2=0., p1=0., p2=0. ;
+  double s[202][2], r1, w, Rej, XMI, XMA, es, ps, e1=0. , e2=0., p1=0., p2=0.;
   int NX, i0, noente=0, noentp=0;
   Rej=-1; r1=1-thr; i0=thr; w=thr-i0;
-
+  
   //............ electron 10% of integral level ..........................
   noente = hgive1(he, &NX, &XMI, &XMA);
   TString etitle = he->GetTitle();
-  cout << "===> " << etitle << " <===  NX e = " << NX <<  " w = " << w <<  " i0 = " << i0 << endl;
+  cout << "===> " << etitle << " <=== el efficiency = " << w  << endl;
   if (NX>200) { cout << "error NX e = " << NX << endl; exit(1); }
   if (noente>0) {
-    es=0;  for ( int i=0; i<=NX+1; i++)  {  es=es+he->GetBinContent(i); s[i][1]=es; };
+    es=0;
+    for ( int i=0; i<=NX+1; i++)  {
+      es=es+he->GetBinContent(i);
+      s[i][1]=es;
+    }
     e2=0;
-    cout << " es = " << es << " noente= " << noente << endl;
+    //cout << " es = " << es << " noente= " << noente << endl;
     if (es>0) {
       for (int i=0; i<=NX+1; i++) {
         e1=e2; e2=s[i][1]/es;
@@ -140,14 +127,23 @@ double Reject(TH1 *hp, TH1 *he, double thr) {
       w=(r1-e1)/(e2-e1);  Rej = i0+w;
     }
   }
-
+  
   //............ now pions level at this threshold .......................
   noentp = hgive1(hp, &NX, &XMI, &XMA);
-  cout << "NX pi = " << NX <<  " i0=" << i0 << " thr=" << he->GetBinLowEdge(i0) << endl;
-  if (noentp>0) { ps=0; for ( int i=0; i<=NX+1; i++) { ps=ps+hp->GetBinContent(i); s[i][0]=ps; };
+  //cout << "NX pi = " << NX <<  " i0 =" << i0 << " thr =" << he->GetBinLowEdge(i0) << endl;
+  if (noentp>0) { 
+    ps=0;
+    for (int i=0; i<=NX+1; i++) {
+      ps=ps+hp->GetBinContent(i);
+      s[i][0]=ps;
+    }
     p1=s[i0][0]/ps;  p2=s[i0+1][0]/ps;  Rej = 1-(p1+(p2-p1)*w);
+    double error = sqrt(ps - s[i0][0]);
+    double relError = 1./error;
+    cout << "===> " << etitle << " <=== Relative Error = " << relError << endl;
   }
-  cout << "===> " << etitle << " <=== Rejection =" << 1./Rej << endl;
+  cout << "===> " << etitle << " <=== Rejection = " << 1./Rej << endl;
+  cout << "------------------------------------------ \n" << endl;
   return Rej;
 }
 
@@ -173,22 +169,13 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
   //TH1F *hbeamX  = new TH1F("hbeamX","hbeamX",256,-0.5,255.5);
   TH1F *hNhits  = new TH1F("hNhits","Hits in GEMTRD",100,-0.5,99.5);
 
-  //TH2F *rad2d   = new TH2F("rad2d","rad2d",50,0.,500., 50,0.,256.);
-  //TH2F *norad2d = new TH2F("norad2d","norad2d",50,0.,500.,50,0.,256.);
-  //TH2F *gem2d   = new TH2F("gem2d","gem2d",100,0.,256.,100,0.,256.);
   TH1F *e_amax    = new TH1F("e_amax","Max Amp per Hit ; ADC Amplitude",200,0.,4100.);
   TH1F *pi_amax  = new TH1F("pi_amax","Max Amp per Hit ; ADC Amplitude",200,0.,4100.);
   TH1F *e_etot   = new TH1F("e_etot","dEdx Total per Hit ; ADC Amplitude Sum",600,0.5,100000.);
   TH1F *pi_etot = new TH1F("pi_etot","dEdx Total per Hit ; ADC Amplitude Sum",600,0.5,100000.);
   
-  //TH2F *h2xdiff = new TH2F("h2xdiff","h2xdiff; GemTRD; Ext Track",380,-124.5,255.5,380,-124.5,255.5);
-
-  //TH1F *zrad2   = new TH1F("zrad2","zrad2",100,-0.5,99.5);
-  //TH1F *znorad2 = new TH1F("znorad2","znorad2",100,-0.5,99.5);
-
   TH1F *time_e  = new TH1F("time_e","dEdx in Time ; Time (8ns)",330,0.5,330.5);
   TH1F *time_pi = new TH1F("time_pi","dEdx in Time ; Time (8ns)",330,0.5,330.5);
-  //TH1F *ampl    = new TH1F("ampl","",500,0.5,500.5);
 
   TH1F *par_e[MAXpar];
   TH1F *par_pi[MAXpar];
@@ -206,12 +193,10 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
   int nx;
   double xmi,xma;
   int noent = hgive1(par_e[0], &nx, &xmi, &xma );
-  cout << " hist: nx=" << nx << " xmi=" << xmi << " xma=" << xma << " noent= " << noent << endl;
+  //cout << " hist: nx=" << nx << " xmi=" << xmi << " xma=" << xma << " noent= " << noent << endl;
 
   Long64_t nentries = gem_hits->GetEntries();
   Long64_t nbytes = 0;
-  //int ntest=nentries*0.25;
-  //cout << " ntest=" << ntest << endl;
   //==============================================================================
   //
   //==============================================================================
@@ -223,21 +208,18 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
   int e_chan2=0;    //-- last  TR channel
   int pi_chan1=0;   //-- first pion (no-rad) channel
   int pi_chan2=0;   //-- last  pion (no-rad) channel
-
+  
+  cout<< "=========== BEGIN RUN " << runnum << " ============" <<endl;
+  
   int ievOK=0;
   //--------------------------------------------------------------------------------
   //                   E V E N T    L O O P
   //--------------------------------------------------------------------------------
-  //int Nfill=0;
   for (Long64_t iev = 0; iev < nentries; iev++) {
     nbytes += gem_hits->GetEntry(iev);
     ievent=iev;
     Count("EVT");
-    if (!(iev % 1000)) cout << " event = "  << iev << " of " << nentries << endl;
-
-    //double gemx=0, gemy=0;
-    //gem2d->Fill(gemx, gemy);
-
+    if (!(iev % 5000)) cout << "Event = "  << iev << " of " << nentries << endl;
     for (int ip=0; ip<MAXpar; ip++) Par[ip]=0;
     for (int i=0; i<NDE; i++) dEdx[i]=0;
 
@@ -257,24 +239,10 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
     //------------------------------------------------------------------------------
        
     channel = w2ch;
-/*
-    int USE_TRACK = 0;
-    if ( USE_TRACK ) {
-      if (abs(13-channel/27-trkch)<3.) { // tracking cut
-        h2xdiff->Fill(channel,trkch);
-        hbeamX->Fill(channel);
-      }
-    } else {
-      h2xdiff->Fill(channel,trkch);
-      hbeamX->Fill(channel);
-    }
-*/
     float amax2=0.;
     float emax2=0.;
     float tmax2=50.;
        
-    //int nw2clust=gem_nhit; // w2nhit;
-
     int khit=0;
     int NTR=0;
     int tw1=110;
@@ -292,7 +260,7 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
 
     pi_chan1=40;  //-- first pion (no-rad) channlel
     pi_chan2=220;  //-- last  pion (no-rad) channel
-    //
+    
     e_chan1=43;  //-- first TR channlel
     e_chan2=223;  //-- last  TR channel
 
@@ -320,34 +288,36 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
 
       switch (runnum) {
 
-      case 3125:   tw1=110; tw2=160; tw3=185; e_chan1=80;   e_chan2=140;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Fleece (lrg)
-      case 3126:   tw1=110; tw2=160; tw3=185; e_chan1=80;   e_chan2=140;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Fleece (lrg)
-      case 3131:   tw1=110; tw2=160; tw3=185; e_chan1=80;   e_chan2=140;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Fleece (lrg)
+      case 3125:   tw1=108; tw2=153; tw3=184; e_chan1=80;   e_chan2=140;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Fleece (lrg)
+      case 3126:   tw1=108; tw2=153; tw3=184; e_chan1=80;   e_chan2=140;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Fleece (lrg)
+      case 3131:   tw1=108; tw2=153; tw3=184; e_chan1=80;   e_chan2=140;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Fleece (lrg)
       
-      case 3132:   tw1=110; tw2=160; tw3=185; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Foil (VU)
-      case 3133:   tw1=110; tw2=160; tw3=185; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Foil (VU)
-      case 3134:   tw1=110; tw2=160; tw3=185; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Foil (VU)
+      case 3132:   tw1=108; tw2=153; tw3=184; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Foil (VU)
+      case 3133:   tw1=108; tw2=153; tw3=184; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Foil (VU)
+      case 3134:   tw1=108; tw2=153; tw3=184; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Foil (VU)
       
-      case 3196:   tw1=108; tw2=160; tw3=185; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Foil
-      case 3197:   tw1=108; tw2=160; tw3=185; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Foil
-      case 3198:   tw1=108; tw2=160; tw3=185; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Foil
-      case 3199:   tw1=108; tw2=160; tw3=185; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Foil
-      case 3200:   tw1=108; tw2=160; tw3=185; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Foil
+      case 3196:   tw1=108; tw2=153; tw3=184; e_chan1=90;   e_chan2=145;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Foil
+      case 3197:   tw1=108; tw2=153; tw3=184; e_chan1=90;   e_chan2=145;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Foil
+      case 3198:   tw1=108; tw2=153; tw3=184; e_chan1=90;   e_chan2=145;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Foil
+      case 3199:   tw1=108; tw2=153; tw3=184; e_chan1=90;   e_chan2=145;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Foil
+      case 3200:   tw1=108; tw2=153; tw3=184; e_chan1=90;   e_chan2=145;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Foil
       
-      case 3201:   tw1=108; tw2=160; tw3=185; e_chan1=85;   e_chan2=160;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Fleece
-      case 3202:   tw1=108; tw2=160; tw3=185; e_chan1=85;   e_chan2=160;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Fleece
+      case 3201:   tw1=108; tw2=153; tw3=184; e_chan1=90;   e_chan2=145;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Fleece
+      case 3202:   tw1=108; tw2=153; tw3=184; e_chan1=90;   e_chan2=145;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Double Fleece
       
-      case 3203:   tw1=108; tw2=160; tw3=185; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- No Rad
-      case 3204:   tw1=108; tw2=160; tw3=185; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- No Rad
+      case 3203:   tw1=108; tw2=153; tw3=184; e_chan1=90;   e_chan2=145;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- No Rad
+      case 3204:   tw1=108; tw2=153; tw3=184; e_chan1=90;   e_chan2=145;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- No Rad
       
-      case 3287:   tw1=110; tw2=160; tw3=185; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Foil (TU)
-      case 3288:   tw1=110; tw2=160; tw3=185; e_chan1=85;   e_chan2=165;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Foil (TU)
+      case 3287:   tw1=108; tw2=153; tw3=184; e_chan1=90;   e_chan2=145;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Foil (TU)
+      case 3288:   tw1=108; tw2=153; tw3=184; e_chan1=90;   e_chan2=145;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break; //-- Single Foil (TU)
       
-      case 3216:   tw1=110; tw2=160; tw3=185; e_chan1=100;  e_chan2=185;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break;
-      case 3248:   tw1=110; tw2=160; tw3=185; e_chan1=112;  e_chan2=134;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break;
+      case 3216:   tw1=108; tw2=153; tw3=184; e_chan1=100;  e_chan2=185;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break;
+      case 3248:   tw1=108; tw2=153; tw3=184; e_chan1=120;  e_chan2=190;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break;
+      case 3250:   tw1=108; tw2=153; tw3=184; e_chan1=120;  e_chan2=190;  pi_chan1=e_chan1;   pi_chan2=e_chan2;   break;
 
+      
       default:
-      tw1=110;
+      tw1=108;
       tw2=160;
       tw3=185;
     }
@@ -358,7 +328,6 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
   }
   
   double dt=(tw3-tw1)/NDE;
-  
   type=-1;
   if(parID->at(0)){
     type=1; ntrk_e++;
@@ -387,7 +356,6 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
     if (dedx->at(i)>THR1) {
       if (type==1) hits2d_e->Fill(zpos->at(i),xpos->at(i),dedx->at(i));   //--- ampl
       else if (type==0) hits2d_p->Fill(zpos->at(i),xpos->at(i),dedx->at(i));   //--- ampl
-      //hits2d->Fill(zpos->at(i),gemch,w2ahit[i]); //--- energy
     }
 
     if(dedx->at(i)>amax2 && tw1<zpos->at(i) && zpos->at(i)<tw3) {
@@ -452,7 +420,7 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
     if ( type<0 ) continue;
     Count("type");
     ievOK++;
-
+    
     if (NN_MODE==1) {  //-- Params only
       if (MAXpar<NFixed) { printf("ERROR :: MAXpar array too small =%d \n",MAXpar); exit(1); }
       Par[0]=amax2/Ascale;
@@ -523,32 +491,24 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
     //cout << "2: " << ievOK << " par0= " << Par[0]<< " par1= " << Par[1] << " par2= " << Par[2] << " par3= " << Par[3] << endl;
 
     if (type==1) {    //-- electron
-      //zrad2->Fill(zero_bin);
-      //Nfill++;
-      //if (Nfill>16000) break;  //-- Events LIMIT
-      //if (iev<ntest)   sig_tst->Fill();
       if (rndm->Rndm()<0.1)   sig_tst->Fill();
       else  signal->Fill();
-    
-      for (int ip=0; ip<NPF; ip++) { par_e[ip]->Fill(Par[ip]); if (iev==6812 || iev==10724)  printf("t=1 i=%d dEdx = %f \n",ip,Par[ip]); }
+      for (int ip=0; ip<NPF; ip++) { par_e[ip]->Fill(Par[ip]); //if (iev==6812 || iev==10724)  printf("t=1 i=%d dEdx = %f \n",ip,Par[ip]);
+      }
     }
     if (type==0) {    //-- pion
-      //znorad2->Fill((double)zero_bin);
-      //if (iev<ntest)  bg_tst->Fill();
       if (rndm->Rndm()<0.1)   bg_tst->Fill();
       else                    background->Fill();
-      for (int ip=0; ip<NPF; ip++) { par_pi[ip]->Fill(Par[ip]); if (iev==6812 || iev==10724)  printf("t=0 i=%d dEdx = %f \n",ip,Par[ip]); }
+      for (int ip=0; ip<NPF; ip++) { par_pi[ip]->Fill(Par[ip]); //if (iev==6812 || iev==10724)  printf("t=0 i=%d dEdx = %f \n",ip,Par[ip]);
+      }
     }
-
      
   }//-- gemtrd hit loop
   
-  //printf("----------------------------------------------------e_chan1=%d  e_chan2=%d\n",e_chan1,e_chan2);
-
   //------------ Plotter -------------------------------------
-
+  
   double escale_trk = 1 ;   if (ntrk_e>0)  escale_trk = (double)ntrk_pi/(double)ntrk_e;
-  printf("escale_trk=%f\n",escale_trk);
+  //printf("escale_trk=%f\n",escale_trk);
   int NORM=1; //-- scale hist using no entries
   int DRAW=2; // 1=draw 2= two stat boxes
   int nxd=3;
@@ -572,13 +532,12 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
   lin1p->SetLineColor(kCyan); lin2p->SetLineColor(kCyan); lin1p->Draw(); lin2p->Draw();
   gPad->Modified(); gPad->Update();
 
-  printf(" Draw Lines :: %d %d %d %d \n",e_chan1,e_chan2, pi_chan1, pi_chan2);
-  //sleep(1);
+  //printf(" Draw Lines :: %d %d %d %d \n",e_chan1,e_chan2, pi_chan1, pi_chan2);
 
   c1=NextPlot(nxd,nyd);  aver2d_e->Draw("colz");
   c1=NextPlot(nxd,nyd);  aver2d_p->Draw("colz");
   c1=NextPlot(nxd,nyd); hNhits->Draw("colz");
-
+/*
   if  (!WC) {
     //---------------------------------------------------------------------
     cout << " ++++  Amplitude Rejection ++++" << endl;
@@ -587,14 +546,7 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
     cout << " Ampl: e=70% , Eff pi = " << rej70*100. << "% ,  Rejection =" << 1./rej70 << endl;
     cout << " Ampl: pi=90%, Eff pi = " << rej90*100. << "% ,  Rejection =" << 1./rej90 << endl;
   }
-
-  //c1=NextPlot(nxd,nyd);    if  (WC) gem2d->Draw("colz"); else hscale(zrad2,znorad2,1.,NORM,2);
-  //c1=NextPlot(nxd,nyd);   ampl->Draw("hist");
-  //c1=NextPlot(nxd,nyd);   h2xdiff->Draw("colz"); gPad->SetLogz();
-  //if  (WC) {
-    //c1=NextPlot(nxd,nyd);
-    //hscale(rad,norad,0.,NORM,1);
-  //}
+*/  
   if (!WC) {
     c1=NextPlot(nxd,nyd);
     hscale(e_amax,pi_amax,0.,NORM,2);
@@ -603,8 +555,7 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
   }
   c1=NextPlot(nxd,nyd);
   hscale(time_e,time_pi,escale_trk,NORM,2); //--- scale time hist here ---
-  //c1=NextPlot(nxd,nyd);   hbeamX->Draw();
-
+  
   for (int ip=0; ip<NPF; ip++) {
     c1=NextPlot(nxd,nyd);
     if (NN_MODE==0 || (NN_MODE > 1 && ip>=NFixed))  gPad->SetLogy();
@@ -612,9 +563,6 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
   }
   c1=NextPlot(-1,-1);
   //------------------------------------------------------------
-  //char pngname[120];
-  //sprintf(pngname,"mlpOutput/%s_dqm_m%d.png",G_DIR,NN_MODE);
-  //c1->Print(pngname);
   char pdfname[120];
   sprintf(pdfname,"mlpOutput/%s_dqm_m%d.pdf",G_DIR,NN_MODE);
   c1->Print(pdfname);
@@ -630,7 +578,7 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
   lin1p->Draw(); lin2p->Draw();
   gPad->Modified(); gPad->Update();
   
-  printf("Draw Lines on c0: e1=%d e2=%d \n",e_chan1,e_chan2);
+  //printf("Draw Lines on c0: e1=%d e2=%d \n",e_chan1,e_chan2);
   c0->cd();
   c0->Modified(); c0->Update();
   char pdfname0[120];
@@ -647,8 +595,9 @@ int fill_trees( TTree *gem_hits, TTree *signal, TTree *background, TTree *sig_ts
 
 void trd_mlp_fermi(int runnum) {
   
-  int WC = 0;
+  //TH1D *hRejFactors = new TH1D("hRejFactors","Rejection Factors",4,1,4);
   
+  int WC = 0;
   hcount= new TH1D("hcount","Count",3,0,3);
   hcount->SetStats(0);   hcount->SetFillColor(38);   hcount->SetMinimum(1.);
 #if ROOT_VERSION_CODE > ROOT_VERSION(6,0,0)
@@ -662,12 +611,11 @@ void trd_mlp_fermi(int runnum) {
   gStyle->SetTitleSize(0.05,"XY");
   
   char rootfile[256];
-  //sprintf(rootfile,"DATA/trd_singleTrackHits_Run_%06d.root",runnum);
   sprintf(rootfile,"RootOutput/trd_singleTrackHits_Run_%06d.root",runnum);
   char basename[120];
   char *hd = strstr(rootfile,"/");
   strncpy(basename,&hd[1],120-1);   char *dot= strstr(basename,"."); *dot=0;
-  printf("basename =%s \n",basename);
+  printf("Base of input file name = %s \n",basename);
   
   Int_t ntrain=50;  //-- 100  // epoch
   int Nmod=3;
@@ -675,7 +623,6 @@ void trd_mlp_fermi(int runnum) {
   // Prepare inputs
   // The 2 trees are merged into one, and a "type" branch,
   // equal to 1 for the signal and 0 for the background is added.
-  //const char *fname = "hd_rawdata_000554_000.evio.root";
   TFile *input = 0;
   input = new TFile(rootfile);
   if (!input) return;
@@ -720,14 +667,10 @@ void trd_mlp_fermi(int runnum) {
    signal->Branch("ievent", &ievent, "ievent/I");
    background->Branch("ievent", &ievent, "ievent/I");
   
-   cout << " Get trees signal=" << signal << endl;
+   //cout << " Get trees signal=" << signal << endl;
    int rtw1,rtw3;
    int nn_mode = fill_trees( gem_hits, signal, background, sig_tst, bg_tst , WC, runnum, &rtw1, &rtw3);
-   //signal->Print();
-   //background->Print();
-   //sig_tst->Print();
-   //bg_tst->Print();
-
+  
    //-----------------------------------------------
    type = 1; //-- electron
    Int_t i;
@@ -750,14 +693,13 @@ void trd_mlp_fermi(int runnum) {
    const int NPAR=MAXpar; // 5 , MAXpar=10
    string INL,NNcfg;
    for (int il=0; il<NPAR; il++) {
-     stringstream ss;  ss << il;  string si = ss.str();
+     stringstream ss;
+     ss << il;
+     string si = ss.str();
      INL=INL+"@par"+si;   if (il<(NPAR-1)) INL=INL+",";
    }
-   //cout<<" ILN="<<INL<<endl;
    NNcfg=INL+":25:8:type";
-   //cout << " NNcfg=" << NNcfg << endl;
-   TMultiLayerPerceptron *mlp =
-     new TMultiLayerPerceptron(NNcfg.data(),simu,"Entry$%2","(Entry$+1)%2");
+   TMultiLayerPerceptron *mlp = new TMultiLayerPerceptron(NNcfg.data(),simu,"Entry$%2","(Entry$+1)%2");
   
    //===========================================================================
    // Use TMLPAnalyzer to see what it looks for
@@ -770,12 +712,12 @@ void trd_mlp_fermi(int runnum) {
    latex.SetTextSize(0.05);
    latex.SetTextAlign(13);  //align at top
    double ystep=0.07, ypos=0.95;
-   if   (WC>0) sprintf(text,"WireChamber TRD  Mode=%d",nn_mode);
-   else        sprintf(text,"GEM TRD  Mode=%d",nn_mode);
+   if (WC>0) sprintf(text,"WireChamber TRD Mode=%d",nn_mode);
+   else sprintf(text,"GEM TRD Mode=%d",nn_mode);
    latex.DrawLatex(0.05,ypos-=ystep,text);
    latex.DrawLatex(0.05,ypos-=ystep,rootfile);
    latex.DrawLatex(0.05,ypos-=ystep,NNcfg.data());
-
+  
    //===========================================================================
    //=====            Train                                             ========
    //===========================================================================
@@ -808,15 +750,12 @@ void trd_mlp_fermi(int runnum) {
    TH1F *bgm = new TH1F("bgm",htit, 100, -.05, 1.1);
    TH1F *sigm = new TH1F("sigm",htit,100, -.05, 1.1);
    TH1F *err = new TH1F("err","err",256, -.5, 255.5);
-   //bg->SetDirectory(0);
-   //sig->SetDirectory(0);
 
    //---------------------------------------------------------------------
    //---------           test net                              -----------
    //---------------------------------------------------------------------
 
    double tout1=0.44, tout2=0.46;
-
    int GAUSS=0; double g_mean1=0.2, g_sigma1=0.3,    g_mean2=0.8, g_sigma2=0.3  ;
    int DISP=0, DISP_THR=0;
    if (DISP>0) {
@@ -839,16 +778,14 @@ void trd_mlp_fermi(int runnum) {
      bg->Fill(out);
      if (tout1<out&&out<tout2) {
        err->Fill(channel);
-       //for (int ip=0; ip<NPAR; ip++) printf(" %f ",params[ip]); printf(" type = %d  out=%f iev=%d \n",type,out,ievent);
      }
      if (out>0.7 && (DISP==1 || DISP==3 )) {
-       printf(" pi high : out=%f type=%d iev=%d par=%5.1f %5.0f  %5.1f %5.1f %5.1f  \n",out,type,ievent,Par[0],Par[1],Par[2],Par[3],Par[4]);
+       //printf(" pi high : out=%f type=%d iev=%d par=%5.1f %5.0f  %5.1f %5.1f %5.1f  \n",out,type,ievent,Par[0],Par[1],Par[2],Par[3],Par[4]);
        gem_hits->GetEntry(ievent);
        c2->cd(); disppi->Reset();
        char htit[128]; sprintf(htit,"#pi event %d; time 8 ns/bin ; x-strip ",ievent);   disppi->SetTitle(htit);
        for (int i=0;i<gem_nhit;i++){
      if (dedx->at(i)>DISP_THR) disppi->Fill(xpos->at(i),zpos->at(i),dedx->at(i));
-     //printf(" %d %f %f  \n",xpos->at(i),zpos->at(i),w2mhit[i]);
        }
        disppi->Draw("colz");
        TLine lin1(0.,rtw1,350.,rtw1);   TLine lin2(0.,rtw3,350.,rtw3);  lin1.SetLineColor(kBlue); lin2.SetLineColor(kBlue); lin1.Draw(); lin2.Draw();
@@ -865,10 +802,10 @@ void trd_mlp_fermi(int runnum) {
      sig->Fill(out);
      if (tout1<out&&out<tout2) {
        err->Fill(channel);
-       for (int ip=0; ip<NPAR; ip++) printf(" %f ",params[ip]); printf(" type = %d out=%f iev=%d \n",type,out,ievent);
+       //for (int ip=0; ip<NPAR; ip++) printf(" %f ",params[ip]); printf(" type = %d out=%f iev=%d \n",type,out,ievent);
      }
      if (out<0.1 && DISP>1 ) {
-       printf(" e low : out=%f type=%d iev=%d par=%5.1f %5.0f  %5.1f %5.1f %5.1f  \n",out,type,ievent,Par[0],Par[1],Par[2],Par[3],Par[4]);
+       //printf(" e low : out=%f type=%d iev=%d par=%5.1f %5.0f  %5.1f %5.1f %5.1f  \n",out,type,ievent,Par[0],Par[1],Par[2],Par[3],Par[4]);
        gem_hits->GetEntry(ievent);
        c2->cd(1);  dispe->Reset();
        char htit[128]; sprintf(htit,"electrons event %d ; time 8 ns/bin ; x-strip",ievent);  dispe->SetTitle(htit);
@@ -881,11 +818,8 @@ void trd_mlp_fermi(int runnum) {
          x[ii]=zpos->at(i);  y[ii]=xpos->at(i); if (dedx->at(i)==0) ey[ii]=100; else ey[ii]=1000./dedx->at(i); ii++; yaver+=y[ii];
        }
      }
-     //printf(" %d %f %f  \n",xpos->at(i),zpos->at(i),dedx->at(i));
        }
        yaver/=ii;
-       //TLinearFitter *lf=new TLinearFitter(ii);
-       //lf->SetFormula("p1");
        TF1 ffit1("ffit1", "pol1", rtw1, rtw3);  ffit1.SetLineColor(kBlue);
        TF1 ffit2("ffit2", "pol1", rtw1, rtw3);  ffit2.SetLineColor(kRed);
            
@@ -897,7 +831,7 @@ void trd_mlp_fermi(int runnum) {
      p1=ffit2.GetParameter(1);
      p0=ffit2.GetParameter(0);
      trka2->Fill(p1*2.,p0);
-     printf("p0=%f yaver=%f \n",p0,yaver);
+     //printf("p0=%f yaver=%f \n",p0,yaver);
        }
        if (runnum==494) trka->Fill(p1*2.); else trka->Fill(p1);
        c2->cd(2);
@@ -953,44 +887,10 @@ void trd_mlp_fermi(int runnum) {
      cout << " i=" << i << " x=" << Xgr[i] << " y=" << Ygr[i] << endl;
    }
    TGraph *gr = new TGraph(ngr,Xgr,Ygr); gr->SetName("e #pi efficiency");gr->SetTitle("Efficiency single module");
-   /*
-   gr->GetXaxis()->SetTitle("electon eff");
-   gr->GetYaxis()->SetTitle("#pi efficiency");
-   gr->SetMarkerStyle(20);
-   gr->SetMarkerColor(kBlue);
-   gr->SetMarkerSize(0.5);
-   */
-   //
    TMultiGraph *mg = new TMultiGraph();
    mg->Add(gr,"lp");
    mlpa_canvas->cd(ipad++);
-   //gr->Draw("ALP");
    mg->Draw("a");
-
-   //---------------------------------------------------------------------
-   /*
-   //---------- GRAPH n-mod ------------------------
-   const Int_t ngr2 = 9;
-   const Int_t kNMAX2 = 9;
-   Double_t *Xgr2 = new Double_t[kNMAX2];
-   Double_t *Ygr2 = new Double_t[kNMAX2];
-   for ( int i=0; i<ngr2; i++) {
-     double eeff=0.5+(i+1)*0.05;
-     Xgr2[i] = eeff;
-     Ygr2[i] = Reject(bgm, sigm, eeff);
-     cout << " i=" << i << " x=" << Xgr2[i] << " y=" << Ygr2[i] << endl;
-   }
-   TGraph *gr2 = new TGraph(ngr2,Xgr2,Ygr2); gr2->SetName("e #pi efficiency");
-   char grtit[120]; sprintf(grtit," Efficiency %d modules ",Nmod);   gr2->SetTitle(grtit);
-   gr2->GetXaxis()->SetTitle("electon eff");
-   gr2->GetYaxis()->SetTitle("#pi efficiency");
-   gr2->SetMarkerStyle(20);
-   gr2->SetMarkerColor(kBlue);
-   gr2->SetMarkerSize(0.5);
-   mlpa_canvas->cd(ipad++);
-   gr2->Draw("ALP");
-   //---------- end GRAPH --------------------
-   */
    mlpa_canvas->cd(ipad++);   trka->Draw();
    mlpa_canvas->cd(ipad++);   trka2->Draw("colz");
    mlpa_canvas->cd(ipad++);   err->Draw("colz");
@@ -1000,16 +900,17 @@ void trd_mlp_fermi(int runnum) {
    double rej80 = Reject(bg, sig, 0.8);
    double rej85 = Reject(bg, sig, 0.85);
    double rej90 = Reject(bg, sig, 0.9);
-   cout << " 1-Mod e=70% , Eff pi = " << rej70*100. << "% ,  Rejection =" << 1./rej70 << endl;
-   cout << " 1-Mod pi=90%, Eff pi = " << rej90*100. << "% ,  Rejection =" << 1./rej90 << endl;
+   //cout << " 1-Mod e=70% , Eff pi = " << rej70*100. << "% ,  Rejection =" << 1./rej70 << endl;
+   //cout << " 1-Mod pi=90%, Eff pi = " << rej90*100. << "% ,  Rejection =" << 1./rej90 << endl;
    //---------------------------------------------
-   double rej70m = Reject(bgm, sigm, 0.7);
-   double rej90m = Reject(bgm, sigm, 0.9);
-   cout << "Nmod=" << Nmod << " Nmod=" << Nmod << " e=70% , Eff pi = " << rej70m*100. << "% ,  Rejection =" << 1./rej70m << endl;
-   cout << " Nmod=" << Nmod << " pi=90%, Eff pi = " << rej90m*100. << "% ,  Rejection =" << 1./rej90m << endl;
+   //double rej70m = Reject(bgm, sigm, 0.7);
+   //double rej90m = Reject(bgm, sigm, 0.9);
+   //cout << "Nmod=" << Nmod << " e=70% , Eff pi = " << rej70m*100. << "% ,  Rejection =" << 1./rej70m << endl;
+   //cout << " Nmod=" << Nmod << " pi=90%, Eff pi = " << rej90m*100. << "% ,  Rejection =" << 1./rej90m << endl;
    //---------------------------------------------
    mlpa_canvas->cd(1);
-   stringstream ss;   ss << " Nmod=" << 1 << " e=70% , Eff #pi = " << rej70*100. << "% ,  Rej =" << 1./rej70 ;  string str = ss.str();
+   stringstream ss;
+   ss << " Nmod=" << 1 << " e=70% , Eff #pi = " << rej70*100. << "% ,  Rej =" << 1./rej70 ;  string str = ss.str();
    latex.DrawLatex(0.05,ypos-=ystep,str.data());
    //--
    ss.str("");  ss.clear();
@@ -1025,6 +926,7 @@ void trd_mlp_fermi(int runnum) {
    latex.DrawLatex(0.05,ypos-=ystep,str2.data());
    latex.DrawLatex(0.05,ypos-=ystep,"--------------");
    //--
+/*
    ss.str("");  ss.clear();
    ss << " Nmod=" << Nmod << " e=70% , Eff #pi = " << rej70m*100. << "% ,  Rej =" << 1./rej70m ;  str2 = ss.str();
    latex.DrawLatex(0.05,ypos-=ystep,str2.data());
@@ -1032,15 +934,14 @@ void trd_mlp_fermi(int runnum) {
    ss.str("");  ss.clear();
    ss << " Nmod=" << Nmod << " e=90% , Eff #pi = " << rej90m*100. << "% ,  Rej =" << 1./rej90m ;  str2 = ss.str();
    latex.DrawLatex(0.05,ypos-=ystep,str2.data());
-
+*/
    //---------------------------------------------
    sprintf(text,"mlpOutput/%s_m%d.pdf",basename,nn_mode);
    mlpa_canvas->Print(text);
    mlpa_canvas->cd(0);
  
-   //f->Write(0, TObject::kWriteDelete);
   f->Write();
- 
+  cout<< "=========== END OF RUN " << runnum << " ============" <<endl; 
    delete input;
 }
 
