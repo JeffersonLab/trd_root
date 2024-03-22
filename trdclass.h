@@ -260,7 +260,7 @@ public :
    TBranch        *b_gem_peak_area;   //!
    TBranch        *b_gem_peak_real_pos;   //!
 
-   trdclass(int RunNum, int MaxEvt, int FirstEvt);
+   trdclass(int RunNum, int MaxEvt, int FirstEvt, int FileNum);
    virtual ~trdclass();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -277,6 +277,7 @@ public :
    //==================  histograms ========================
 
    int RunNum;
+   int FileNum;
    Long64_t MaxEvt;
    Long64_t FirstEvt;
    TH1F *h250_size;
@@ -391,20 +392,38 @@ public :
 #endif
 
 #ifdef trdclass_cxx
-trdclass::trdclass(int RunNum_in, int MaxEvt_in=0,  int FirstEvt_in=0) : fChain(0)
+trdclass::trdclass(int RunNum_in, int MaxEvt_in=0, int FirstEvt_in=0, int FileNum_in=0) : fChain(0)
 {
   RunNum=RunNum_in;
+  FileNum=FileNum_in;
   MaxEvt=MaxEvt_in;
   FirstEvt=FirstEvt_in;
-  TTree *tree=NULL;
+  printf("====== trdclass constructor Run=%d File=%d  ============\n",RunNum,FileNum);
+
+  TChain* chain;
+  TTree *tree=0;
+  char chainFiles[128];
+  
+  if (FileNum<0) {
+    sprintf(chainFiles,"ROOT/Run_%06d_*.root",RunNum);
+    chain = new TChain("events");
+    chain->Add(chainFiles);
+    chain->Print();
+    tree=chain;
+  } 
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
      char FileName[128];
-     sprintf(FileName,"ROOT/Run_%06d.root",RunNum);
+     sprintf(FileName,"ROOT/Run_%06d_%03d.root",RunNum,FileNum);
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(FileName);
       if (!f || !f->IsOpen()) {
          f = new TFile(FileName);
+       printf("---> Open file = %s \n",FileName);
+     } else {
+       sprintf(FileName,"ROOT/Run_%06d.root",RunNum);
+       f = (TFile*)gROOT->GetListOfFiles()->FindObject(FileName);
+       printf("---> Open file = %s \n",FileName);
       }
       f->GetObject("events",tree);
 

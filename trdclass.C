@@ -1378,6 +1378,7 @@ mg->Draw("a");
       if (mg != NULL ) delete mg;
       //printf("!!!!!!!!!!!>>>>>>  mg pointer1 = %p ",mg);
       mg = new TMultiGraph();
+      mg->SetTitle(" ML-FPGA response; z pos,mm; y pos,mm ");
       //printf(">>>>>>  pointer2 = %p \n ",mg);
 
       int NTRACKS=0;
@@ -1395,7 +1396,7 @@ mg->Draw("a");
 	  y.push_back(TRACKS[i2].at(i3));
 	}
 
-	c2->cd(3);   hevt->Draw("colz");
+	//c2->cd(3);   hevti->Draw("colz");
 
 	TGraph *g = new TGraph(TRACKS_N[i2], &x[0], &y[0]);  g->SetMarkerStyle(21); g->SetMarkerColor(i2);
 	/*
@@ -1411,12 +1412,18 @@ mg->Draw("a");
 	g->Fit(f); 
 	//c2->cd(3); g->Draw("AC*"); 
 
+	//  --- get fit parameters ---
+	TF1 *ffunc=g->GetFunction("f");
+	Double_t p0=ffunc->GetParameter(0);
+	Double_t p1=ffunc->GetParameter(1);
+	printf("+++++>>  Track = %d fit: p0=%f p1=%f \n",i2,p0,p1);
+
 	mg->Add(g,"p");
 
 	NTRACKS++;
 
       }  //  end tracks loop
-      
+            
       c2->cd(3); mg->Draw("APsame"); 
       mg->GetXaxis()->SetLimits(0.,30);
       mg->SetMinimum(-50.);
@@ -1569,7 +1576,6 @@ mg->Draw("a");
 	  c2->Modified(); c2->Update(); 
 	  printf("\n");
 
-
 #if (USE_FIT==1)
 	  //=============== Draw Tracks lines =============
 
@@ -1614,7 +1620,6 @@ mg->Draw("a");
 	  mh.DrawClone();  gPad->Modified(); gPad->Update(); 
 	}
 	c2->Modified(); c2->Update(); 
-	
       } // -- end nmod  ---
 #endif  // --- end  if USE_TCP  -------------------------------------------------------------------------------------------
 
