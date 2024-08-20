@@ -70,8 +70,8 @@ f2vec dot_bias_max(f2vec a, f2vec w, std::vector<float> b, bool doMax=true){
     throw -1;
   int dim = w.size();
   f2vec out(a.size(), std::vector<float>(w[0].size(), 0.f));
-  for(int i = 0; i < a.size(); i++){
-    for(int j = 0; j < w[0].size(); j++){
+  for(ULong64_t i = 0; i < a.size(); i++){
+    for(ULong64_t j = 0; j < w[0].size(); j++){
       float sum = 0;
       for(int k = 0; k < dim; k++){
         sum += a[i][k] * w[k][j];
@@ -404,7 +404,7 @@ int gnn_model(f2vec nodes,  f2vec edges, std::vector<int> senders, std::vector<i
     f2vec nodes_receive(nodes.size(), std::vector<float>(LATENT, 0.f));
     f2vec edges_update(edges.size(), std::vector<float>(LATENT, 0.f));
 
-    for(int e = 0; e < eInput.size(); e++){  // 42 
+    for(ULong64_t e = 0; e < eInput.size(); e++){  // 42 
     //for(int e = 0; e < 6; e++){
 
       //printf("model edges update e=%d size=%d\n",e,eInput.size());
@@ -440,7 +440,7 @@ int gnn_model(f2vec nodes,  f2vec edges, std::vector<int> senders, std::vector<i
 #endif
 
       edges_update[e] = ec1[0];
-      for(int i = 0; i < nodes_receive[receivers[e]].size() ; i++){
+      for(ULong64_t i = 0; i < nodes_receive[receivers[e]].size() ; i++){
         nodes_receive[receivers[e]][i] += ec1[0][i];
       }
 
@@ -456,7 +456,7 @@ int gnn_model(f2vec nodes,  f2vec edges, std::vector<int> senders, std::vector<i
     printVec(nodes_receive,"nodes_receive");
 
     f2vec nodes_update(nodes.size(), std::vector<float>(LATENT, 0.f));
-    for(int n = 0; n < nodes.size(); n++){  //21
+    for(ULong64_t n = 0; n < nodes.size(); n++){  //21
     //for(int n = 0; n < 1; n++){
       f1vec in;
       for(float nr : nodes_receive[n])
@@ -549,7 +549,7 @@ int gnn_model(f2vec nodes,  f2vec edges, std::vector<int> senders, std::vector<i
 
   
   // f1vec output;
-  for(int i = 0; i < o1.size(); i++){
+  for(ULong64_t i = 0; i < o1.size(); i++){
     output.push_back(sigmoid(o1[i][0]));
   }
   

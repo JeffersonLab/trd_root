@@ -39,11 +39,11 @@ void vector2fixedarray(int offset, int nTracks, std::vector<std::vector<std::vec
     offset = 0;
 
   // initialize nodes and truth
-  int nHitID = 0;
+  ULong64_t nHitID = 0;
   for(int e = offset; e < offset+nTracks; e++){
     // printf("Making from %d -> %d/%d = %d\n",offset, e-offset, nTracks, e);
     int m_id = 0;
-    for(int h = 0; h < points.at(e).size(); h++){
+    for(ULong64_t h = 0; h < points.at(e).size(); h++){
       std::vector<float> hit = points[e][h];
       // nodes.push_back({hit[0],hit[2]});
       // truth.push_back({e-offset+1, m_id++});
@@ -74,7 +74,7 @@ bool filterEdge(std::vector<float>& node_i, std::vector<float>& node_j, float& a
   
   // calculate difference in x,y,z
   std::vector<float> diff;
-  for(int q = 0; q < node_i.size(); q++){
+  for(ULong64_t q = 0; q < node_i.size(); q++){
     diff.push_back(node_j[q] - node_i[q]);
   }
   // if z position is negative, ignore we only want forward tracks
@@ -121,9 +121,9 @@ bool filterEdge(std::vector<float>& node_i, std::vector<float>& node_j, float& a
 void convertToGraph(std::vector<std::vector<float>>& nodes, std::vector<std::vector<float>>& edges, std::vector<int>& senders, std::vector<int>& receivers){
 
   // iterate over nodes list twice (all combinations)
-  int cnt=0;
-  for(int i = 0; i < nodes.size(); i++){
-    for(int j = 0; j < nodes.size(); j++){
+  ULong64_t cnt=0;
+  for(ULong64_t i = 0; i < nodes.size(); i++){
+    for(ULong64_t j = 0; j < nodes.size(); j++){
       // if same index (same node) ignore
       if(i == j)
         continue;
@@ -170,8 +170,8 @@ void convertToGraphTest(std::vector<std::vector<float>>& nodes, std::vector<std:
   nodes_t = std::vector<std::vector<float>>(nodes.size(),std::vector<float>(1,0));
 
   // iterate over nodes list twice (all combinations)
-  for(int i = 0; i < nodes.size(); i++){
-    for(int j = 0; j < nodes.size(); j++){
+  for(ULong64_t i = 0; i < nodes.size(); i++){
+    for(ULong64_t j = 0; j < nodes.size(); j++){
       // if same index (same node) ignore
       if(i == j)
         continue;
@@ -226,8 +226,8 @@ void fromGraphToTracks(int nTracks, std::vector<std::vector<int>>& tracks, std::
       all_ll.push_back(ll);
       if(debug) printf(" appending new: %d->%d\n",sender,receiver);
 
-      for(int i = 0; i < all_ll.size(); i++){
-        for(int j = 0; j < all_ll.size(); j++){
+      for(ULong64_t i = 0; i < all_ll.size(); i++){
+        for(ULong64_t j = 0; j < all_ll.size(); j++){
           if(i == j) continue;
           if(debug) printf("  checking : %d & %d\n",i,j);
           LinkedList* i_ll = all_ll[i];
@@ -277,14 +277,14 @@ void fromGraphToTracks(int nTracks, std::vector<std::vector<int>>& tracks, std::
  */
 void fromGraph(std::vector<int>& hit_out, int nNodes, std::vector<int>& senders, std::vector<int>& receivers, std::vector<float>& output){
 
-  for(int i = 0; i < hit_out.size(); i++){
+  for(ULong64_t i = 0; i < hit_out.size(); i++){
     hit_out[i] = 0;
   }
 
   // printf("sender: %d\n", senders.size());
 
   int track_id = 1;
-  for(int eID = 0; eID < output.size(); eID++){
+  for(ULong64_t eID = 0; eID < output.size(); eID++){
     if(output[eID] > THRESHOLD){
       int sender = senders[eID];
       int receiver = receivers[eID];
@@ -340,7 +340,7 @@ int doPattern(std::vector<float>& x, std::vector<float>& y, std::vector<int>& hi
 #ifdef VERBOSE
   printf("x,y size: %d %d\n", x.size(), y.size());
 #endif
-  for(int i = 0; i < std::min(NMAX,x.size()); i++){
+  for(ULong64_t i = 0; i < std::min(NMAX,x.size()); i++){
     nodes[i][0] = x[i];
     nodes[i][1] = y[i];
   }
